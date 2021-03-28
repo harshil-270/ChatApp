@@ -16,7 +16,6 @@ var io = socketio(server, {
 });
 
 io.on('connection', (socket) => {
-    // console.log('User Connected');
     socket.on('join', ({ rooms }) => {
         socket.join(rooms);
     });
@@ -31,7 +30,6 @@ io.on('connection', (socket) => {
 app.use('/uploads', express.static('uploads'));
 app.use(express.json());
 app.use(cors());
-
 
 const userRouter = require('./routes/userRouter');
 const messageRouter = require('./routes/messageRouter');
