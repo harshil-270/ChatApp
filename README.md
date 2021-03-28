@@ -12,8 +12,6 @@
 
   <p align="center">
     <br />
-    <a href="https://chat-app-270.herokuapp.com/">View Demo</a>
-    ·
     <a href="https://github.com/harshil-270/ChatApp/issues">Report Bug</a>
     ·
     <a href="https://github.com/harshil-270/ChatApp/issues">Request Feature</a>
@@ -29,8 +27,8 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
+        <li><a href="#built-with">Features</a></li>
         <li><a href="#built-with">Built With</a></li>
-        <li><a href='#update'>Update history</a></li>
       </ul>
     </li>
     <li>
@@ -51,10 +49,12 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-This is simple chat app.<br />
--You can create your account.<br />
--Make friends by sending friend request.<br />
--Chat with them.<br />
+### Features
+
+-It has basic functionality like register/login, forget password, update profile.<br />
+-Sending friend request to other users.<br />
+-Send Image, Video and other types of file.<br />
+-Typing Indicator, Server side message encryption<br />
 
 ### Built With
 
@@ -63,13 +63,8 @@ This is simple chat app.<br />
 * [MongoDB](https://www.mongodb.com/1)
 * [ReactJS](https://reactjs.org/)
 * [Socket.io](https://socket.io/)
+* [AWS S3](https://aws.amazon.com/s3/)
 
-### Update
-#### v1.0
-* Typing Indicator
-* Server side messages encryption
-* Update Profile
-* Forget Password functionality
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -102,13 +97,17 @@ Install the dependencies required by React once.
 npm install
 ```
 
-Now go to *.env* file and fill all the details.
+Now create *.env* file and fill all the details.
 ```env
-MONGO_URI = PUT_YOUR_MONGODB_ATLAS_CONNECTION_STRING_HERE
-JWT_SECRET = PUT_JWT_SECRET_HERE
-MESSAGE_KEY = MESSGAE_ENCRYPTION_KEY
-GMAIL_USER = YOUR_GMAIL_ADDRESS
-GMAIL_PASS = YOUR_GMAIL_PASS
+MONGO_URI = 
+JWT_SECRET = 
+MESSAGE_KEY = PUT_MESSGAE_ENCRYPTION_KEY_HERE
+GMAIL_USER = 
+GMAIL_PASS = 
+AWS_ACCESS_KEY_ID = 
+AWS_SECRET_ACCESS_KEY = 
+AWS_REGION = 
+AWS_BUCKET_NAME = 
 ```
 
 Now you are ready to run the server and frontend.
