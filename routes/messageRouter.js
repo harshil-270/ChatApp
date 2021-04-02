@@ -8,8 +8,6 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 require('dotenv').config();
 
-
-
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './uploads/');
@@ -21,7 +19,11 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
     // check file extension
-    if (!file.originalname.match(/\.(jpeg|jpg|png|gif|mp3|mp4|avi|txt|c|cpp|js|py|java|html|css|pdf|doc|docx|ppt|pptx|xlsx|xls|psd)$/)) {
+    if (
+        !file.originalname.match(
+            /\.(jpeg|jpg|png|gif|mp3|mp4|avi|txt|c|cpp|js|py|java|html|css|pdf|doc|docx|ppt|pptx|xlsx|xls|psd)$/
+        )
+    ) {
         return cb('File Extension not supported', false);
     }
     cb(null, true);
@@ -46,7 +48,6 @@ const decryptMessage = (message) => {
     return decryptedMessage;
 };
 
-
 Router.get('/getFriendsChat', auth, async (req, res) => {
     try {
         let user = await User.findById(req.user).populate('friends.user');
@@ -56,7 +57,6 @@ Router.get('/getFriendsChat', auth, async (req, res) => {
 
         let friendsChat = [];
         for (let i = 0; i < user.friends.length; i++) {
-
             let friend = {
                 username: user.friends[i].user.username,
                 friendId: user.friends[i].user._id,
@@ -164,17 +164,11 @@ Router.post('/updateSeenMessages', auth, async (req, res) => {
 // Uploading files to AWS S3
 Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
     try {
-
         let message = new Message({
             body: encryptMessage(req.file.originalname),
             type: 'file',
             from: req.user,
             to: req.body.receiver,
-            fileData: {
-                originalname: req.file.originalname,
-                mimetype: req.file.mimetype,
-                size: req.file.size,
-            },
         });
         message = await message.save();
 
@@ -184,7 +178,6 @@ Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
             secretAccesskey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION,
         });
-
 
         const fileBuffer = fs.readFileSync(req.file.path);
         // extract the file extension from file name.
@@ -243,15 +236,14 @@ Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ err: 'Server Error'});    
+        return res.status(500).json({ err: 'Server Error' });
     }
 });
 
 Router.get('/downloadFile', auth, async (req, res) => {
     try {
         let message = await Message.findById(req.query.id);
-        if (!message)
-            return res.status(404).json({err: 'file not found'});
+        if (!message) return res.status(404).json({ err: 'file not found' });
 
         // config the aws s3
         let s3bucket = new AWS.S3({
@@ -262,7 +254,8 @@ Router.get('/downloadFile', auth, async (req, res) => {
 
         // get the file from aws s3 bucket using key
         // key = message id + file extension
-        const myFile = message.fileData.originalname.split('.');
+
+        const myFile = decryptMessage(message.body).split('.');
         const fileExtension = myFile[myFile.length - 1];
         s3bucket.getObject(
             {
@@ -274,7 +267,7 @@ Router.get('/downloadFile', auth, async (req, res) => {
                     return res.status(500).json({ err: 'server error' });
                 }
                 // return the file.
-                res.status(200).send(data.Body)
+                res.status(200).send(data.Body);
             }
         );
     } catch (error) {
@@ -287,9 +280,9 @@ Router.get('/downloadFile', auth, async (req, res) => {
 Router.get('/getFileData', auth, async (req, res) => {
     try {
         let message = await Message.findById(req.query.id);
-        if (!message)
-            return res.status(404).json({err: 'file not found'});
-        res.status(200).json(message.fileData);
+        if (!message) return res.status(404).json({ err: 'file not found' });
+
+        res.status(200).json({ body: decryptMessage(message.body) });
     } catch (error) {
         console.log(error);
         res.status(500).json({ err: 'server error' });

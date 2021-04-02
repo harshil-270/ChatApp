@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 import UserContext from '../../context/UserContext';
 import downloadIcon from '../../assets/downloadIcon.png';
 import axios from 'axios';
@@ -6,11 +6,11 @@ import axios from 'axios';
 import fileIcon2 from '../../assets/fileIcon2.png';
 import { URL } from '../utils/Config';
 
-function Message({chat, index, count}) {
+function Message({ chat, index, count }) {
     const User = useContext(UserContext);
     const focusMessageId = index === count - 1 ? 'focusMessageId' : '';
     const MessageClass = chat.from === User.user.id ? 'RightMessage' : 'LeftMessage';
-    const FileClass = chat.from === User.user.id ? 'FileRightMessage': 'FileLeftMessage';
+    const FileClass = chat.from === User.user.id ? 'FileRightMessage' : 'FileLeftMessage';
     const stylingForFirstMessage = index === 0 ? { marginTop: 'auto' } : {};
 
     const formatAMPM = (date) => {
@@ -25,7 +25,7 @@ function Message({chat, index, count}) {
         return strTime;
     };
 
-    const downloadFile = async (e, index) => {
+    const downloadFile = async (e) => {
         // get the file from server.
         const token = localStorage.getItem('auth-token');
         const res = await axios.get(`${URL}/messages/downloadFile`, {
@@ -38,7 +38,7 @@ function Message({chat, index, count}) {
             responseType: 'blob',
         });
         // also get file information from server like file name and file type.
-        const fileData = await axios.get(`${URL}/messages/getFileData`, {
+        const fileInfo = await axios.get(`${URL}/messages/getFileData`, {
             headers: {
                 'x-auth-token': token,
             },
@@ -46,10 +46,12 @@ function Message({chat, index, count}) {
                 id: chat.id,
             },
         });
-        const url = window.URL.createObjectURL(new Blob([res.data], { type: fileData.data.mimetype }));
+        const myFile = fileInfo.data.body.split('.');
+        const fileExntesion = myFile[-1];
+        const url = window.URL.createObjectURL(new Blob([res.data], { type: fileExntesion }));
         const link = document.createElement('a');
         link.href = url;
-        link.download = fileData.data.originalname;
+        link.download = fileInfo.data.body;
         link.click();
     };
 
@@ -67,7 +69,7 @@ function Message({chat, index, count}) {
         );
     }
     return (
-        <div className={`FileContainer ${MessageClass} ${FileClass}`} style={stylingForFirstMessage} >
+        <div className={`FileContainer ${MessageClass} ${FileClass}`} style={stylingForFirstMessage}>
             <div>
                 <img src={fileIcon2} width='40px' height='40px' alt='file icon' />
             </div>
@@ -82,4 +84,4 @@ function Message({chat, index, count}) {
     );
 }
 
-export default Message
+export default Message;
