@@ -1,5 +1,6 @@
 /* font-family: 'Open Sans', sans-serif;*/
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pattaya&display=swap');
 
 * {
     margin: 0;
@@ -477,12 +478,12 @@ input[type='submit'] {
     padding: 8px;
 }
 .FileLeftMessage {
-    border-radius: 7px 7px 7px 0;   
+    border-radius: 7px 7px 7px 0;
 }
 .FileRightMessage {
     border-radius: 7px 7px 0 7px;
 }
-.FileDetail{
+.FileDetail {
     margin-left: 10px;
     margin-right: 10px;
 }
@@ -504,20 +505,19 @@ input[type='submit'] {
 }
 .FileModalFileName {
     margin-right: 10px;
-    max-width: 200px; 
+    max-width: 200px;
     overflow: hidden;
 }
 .FileModalSendButton {
-    cursor: pointer; 
+    cursor: pointer;
     height: 35px;
 }
 .FileModalCloseButton {
-    position: absolute; 
-    top: 0; 
+    position: absolute;
+    top: 0;
     right: 0;
     border: 0;
 }
-
 
 #ChatWindowInputFieldContainer {
     flex: 0;
@@ -583,9 +583,53 @@ input[type='submit'] {
 .DefaultPage {
     height: 100%;
     min-height: 100%;
-    background-color: white;
+    background-color: rgb(226, 245, 243);
+    /* position: relative;
+    z-index: 1; */
+}
+/* .DefaultPage::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: url(./assets/background.jpg) center center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.7;
+} */
+.DefaultPageTitle1 {
+    height: 40%;
+    display: flex;
+    font-family: 'Pattaya', sans-serif;
+    justify-content: center;
+    align-items: flex-end;
+    font-size: 3.5rem;
+    font-weight: bold;
+}
+.DefaultPageDesc {
+    display: flex;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: rgb(84, 84, 84);
 }
 
+.DefaultPageGetStarted {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}
+.DefaultPageGetStarted > button {
+    width: 140px;
+    height: 40px;
+    font-size: 1.15rem;
+    background-color: #56cfe1;
+    border: 0;
+    outline: none;
+}
 .DefaultPageTitle {
     height: 100%;
     display: flex;
