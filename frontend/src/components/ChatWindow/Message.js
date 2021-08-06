@@ -6,9 +6,10 @@ import axios from 'axios';
 import fileIcon2 from '../../assets/fileIcon2.png';
 import { URL } from '../utils/Config';
 
-function Message({ chat, index, count }) {
+function Message({ chat, chatLength, index, count }) {
+    // console.log(index, count);
     const User = useContext(UserContext);
-    const focusMessageId = index === count - 1 ? 'focusMessageId' : '';
+    const focusMessageId = count === chatLength - index - 1 ? 'focusMessageId' : '';
     const MessageClass = chat.from === User.user.id ? 'RightMessage' : 'LeftMessage';
     const FileClass = chat.from === User.user.id ? 'FileRightMessage' : 'FileLeftMessage';
     const stylingForFirstMessage = index === 0 ? { marginTop: 'auto' } : {};
@@ -59,11 +60,11 @@ function Message({ chat, index, count }) {
     if (chat.type === 'message') {
         return (
             <div className={`Message ${MessageClass}`} style={stylingForFirstMessage}>
-                <div className='MessageContent' id={focusMessageId}>
+                <div className="MessageContent" id={focusMessageId}>
                     {chat.body}
                 </div>
-                <div className='MessageTimePartDiv'>
-                    <div className='TimeDiv'>{formatAMPM(chat.time)}</div>
+                <div className="MessageTimePartDiv">
+                    <div className="TimeDiv">{formatAMPM(chat.time)}</div>
                 </div>
             </div>
         );
@@ -71,14 +72,14 @@ function Message({ chat, index, count }) {
     return (
         <div className={`FileContainer ${MessageClass} ${FileClass}`} style={stylingForFirstMessage}>
             <div>
-                <img src={fileIcon2} width='40px' height='40px' alt='file icon' />
+                <img src={fileIcon2} width="40px" height="40px" alt="file icon" />
             </div>
-            <div className='FileDetail' id={focusMessageId}>
-                <div className='FileName'>{chat.body}</div>
-                <div className='FileTimeDiv'>{formatAMPM(chat.time)}</div>
+            <div className="FileDetail" id={focusMessageId}>
+                <div className="FileName">{chat.body}</div>
+                <div className="FileTimeDiv">{formatAMPM(chat.time)}</div>
             </div>
-            <div className='DownloadImgDiv' onClick={(e) => downloadFile(e, index)}>
-                <img src={downloadIcon} width='40px' height='40px' alt='download icon' />
+            <div className="DownloadImgDiv" onClick={(e) => downloadFile(e, index)}>
+                <img src={downloadIcon} width="40px" height="40px" alt="download icon" />
             </div>
         </div>
     );

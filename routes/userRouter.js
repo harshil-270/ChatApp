@@ -1,13 +1,16 @@
 const Router = require('express').Router();
-const User = require('../models/users');
-const bcrypt = require('bcryptjs');
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const auth = require('../auth/auth');
-const mongoose = require('mongoose');
 const multer = require('multer');
 const transporter = require('../auth/emailAuth');
-const fs = require('fs');
+const bcrypt = require('bcryptjs');
 const CryptoJS = require('crypto-js');
+
+const mongoose = require('mongoose');
+const User = require('../models/users');
+const Friend = require('../models/friends');
+const Message = require('../models/messages');
 
 require('dotenv').config();
 
@@ -39,7 +42,6 @@ const upload = multer({
     fileFilter: fileFilter,
 });
 
-
 const encryptMessage = (message) => {
     let encryptedMessage = CryptoJS.AES.encrypt(message, process.env.MESSAGE_KEY).toString();
     return encryptedMessage;
@@ -48,7 +50,6 @@ const decryptMessage = (message) => {
     let decryptedMessage = CryptoJS.AES.decrypt(message, process.env.MESSAGE_KEY).toString(CryptoJS.enc.Utf8);
     return decryptedMessage;
 };
-
 
 Router.post('/register', upload.single('profilePic'), async (req, res) => {
     // validate the user data
@@ -64,7 +65,9 @@ Router.post('/register', upload.single('profilePic'), async (req, res) => {
 
     try {
         // first check if user with same username or email already exits or not.
-        let user = await User.findOne({ $or: [{ email: req.body.email }, { username: req.body.username }] });
+        let user = await User.findOne({
+            $or: [{ email: req.body.email }, { username: req.body.username }],
+        });
         if (user) {
             if (user.confirmed) {
                 if (user.username === req.body.username) {
@@ -79,7 +82,9 @@ Router.post('/register', upload.single('profilePic'), async (req, res) => {
                     // if username is already taken but email id is not confirmed then
                     // if account was created less than 1 day ago then some other user cant take this username.
                     if (user.username === req.body.username) {
-                        return res.status(400).json({ error: 'Username is already taken. Please choose another username' });
+                        return res.status(400).json({
+                            error: 'Username is already taken. Please choose another username',
+                        });
                     }
                 }
 
@@ -115,7 +120,7 @@ Router.post('/register', upload.single('profilePic'), async (req, res) => {
             res.json({ msg: 'User registered' });
         });
     } catch (error) {
-        res.status(500).json({err: 'Server error'});
+        res.status(500).json({ err: 'Server error' });
     }
 });
 
@@ -132,12 +137,11 @@ Router.get('/confirmation/:token', async (req, res) => {
         await user.save();
         return res.redirect(`${CLIENT_URL}/login`);
     } catch (error) {
-        res.status(500).json({err: 'server error'});
+        res.status(500).json({ err: 'server error' });
     }
 });
 
 Router.post('/login', async (req, res) => {
-
     if (!req.body.email || !req.body.password) {
         return res.status(400).json({ err: 'Please fill all the fields' });
     }
@@ -166,7 +170,7 @@ Router.post('/login', async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        return res.status(500).json({err: 'server error'});
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
@@ -175,12 +179,12 @@ Router.post('/resetPassword', async (req, res) => {
         // check if user exits or not.
         let user = await User.findOne({ email: req.body.email });
         if (!user) return res.status(404).json({ err: 'Email Id is not registered' });
-        
+
         // generate random token for reseting password.
         // const token = crypto.randomBytes(32).toString('hex');
         let token = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for ( var i = 0; i < 64; i++ ) {
+        for (var i = 0; i < 64; i++) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         user.resetToken = token;
@@ -198,7 +202,7 @@ Router.post('/resetPassword', async (req, res) => {
         });
         res.json({ msg: 'Check your Email' });
     } catch (error) {
-        return res.status(500).json({err: 'server error'});
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
@@ -212,7 +216,10 @@ Router.post('/newPassword', async (req, res) => {
     }
     try {
         // find user and make sure reset token is not expired.
-        let user = await User.findOne({ resetToken: req.body.resetToken, expiryTime: { $gt: Date.now() } });
+        let user = await User.findOne({
+            resetToken: req.body.resetToken,
+            expiryTime: { $gt: Date.now() },
+        });
         if (!user) return res.status(400).json({ err: 'Your session has expired. Please try again' });
 
         const salt = await bcrypt.genSalt();
@@ -221,10 +228,10 @@ Router.post('/newPassword', async (req, res) => {
         user.resetToken = undefined;
         user.expiryTime = undefined;
         await user.save();
-        
+
         res.json({ msg: 'Password updated successfully' });
     } catch (error) {
-        return res.status(500).json({err: 'server error'});
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
@@ -243,9 +250,8 @@ Router.get('/getUserProfile', auth, async (req, res) => {
             profilePic,
             username: user.username,
         });
-    
     } catch (error) {
-        return res.status(500).json({err: 'server error'});
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
@@ -263,7 +269,7 @@ Router.post('/updateProfilePic', auth, upload.single('profilePic'), async (req, 
             res.status(400).json({ err: 'No User found' });
         }
     } catch (err) {
-        return res.status(500).json({err: 'server error'});
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
@@ -274,11 +280,13 @@ Router.post('/updateUsername', auth, async (req, res) => {
         }
         let user = await User.findById(req.user);
         if (user.username === req.body.username) {
-            return res.status(200).json({msg: 'success'});
+            return res.status(200).json({ msg: 'success' });
         }
         if (user) {
             // check if new username is availabel or not
-            let alreadyExist = await User.findOne({ username: req.body.username });
+            let alreadyExist = await User.findOne({
+                username: req.body.username,
+            });
             if (alreadyExist) {
                 return res.status(400).json({ err: 'Username is already taken' });
             }
@@ -298,13 +306,12 @@ Router.post('/isTokenValid', auth, async (req, res) => {
         let user = await User.findById(req.user);
         if (!user) {
             return res.json({ isValid: false });
-        } 
+        }
         res.json({
             id: user._id,
             username: user.username,
             isValid: true,
         });
-    
     } catch (error) {
         res.status(500).json({ err: 'server error' });
     }
@@ -312,36 +319,33 @@ Router.post('/isTokenValid', auth, async (req, res) => {
 
 Router.post('/sendFriendRequest', auth, async (req, res) => {
     try {
-        // unique id between any 2 friends. used for socket connections.
-        const friendshipId = new mongoose.Types.ObjectId();
-
         // find the 1st user
-        let user1 = await User.findById(req.user);
-        if (!user1) return res.status(404).json({ err: 'cant find user' });
-        // check if request has already been sent or not.
-        for (let i = 0; i < user1.friends.length; i++) {
-            if (user1.friends[i].user.equals(req.body.id)) {
-                return res.status(400).json({ err: 'Request is already sent' });
-            }
+        const user1 = await User.findById(req.user);
+        if (!user1) return res.status(404).json({ err: 'Cant find the user' });
+        const user2 = await User.findById(req.body.id);
+        if (!user2)
+            return res.status(404).json({
+                err: 'Cant find the friend, to whom user is trying to send request.',
+            });
+
+        let friend = await Friend.findOne({
+            $or: [
+                { $and: [{ user1: user1._id }, { user2: user2._id }] },
+                { $and: [{ user1: user2._id }, { user2: user1._id }] },
+            ],
+        });
+        if (friend) {
+            return res.status(400).json({ err: 'Request is already sent.' });
         }
-        user1.friends.push({
-            user: req.body.id,
-            status: 'Requested',
-            friendshipId: friendshipId,
-        });
-        await user1.save();
 
-        // find the 2nd user.
-        let user2 = await User.findById(req.body.id);
-        if (!user2) return res.status(404).json({ err: 'cant find user' });
-        user2.friends.push({
-            user: req.user,
-            status: 'AcceptIt',
-            friendshipId: friendshipId,
+        friend = new Friend({
+            user1: user1._id,
+            user2: user2._id,
+            status: 'pending',
         });
-        await user2.save();
+        await friend.save();
 
-        res.json({ msg: 'Friend Request sended' });
+        return res.status(200).json({ msg: 'Friend Request sended.' });
     } catch (error) {
         return res.status(500).json({ err: 'Server error' });
     }
@@ -349,120 +353,123 @@ Router.post('/sendFriendRequest', auth, async (req, res) => {
 
 Router.post('/acceptFriendRequest', auth, async (req, res) => {
     try {
-        let user1 = await User.findById(req.user);
-        let ind = -1;
-        // find the index of friend in friendlist.
-        for (let i = 0; i < user1.friends.length; i++) {
-            if (user1.friends[i].user.equals(req.body.id)) {
-                ind = i;
-                break;
-            }
-        }
-        if (ind == -1) return res.status(400).json({ msg: 'cant find friend' });
-        // update the status to accepted.
-        user1.friends[ind].status = 'Accepted';
-        user1 = await user1.save();
+        // User who is accepting request keep it in "user2" varaible. just to avoid confusion.
+        const user1 = await User.findById(req.body.id);
+        if (!user1) return res.status(404).json({ err: 'Friend not found' });
+        const user2 = await User.findById(req.user);
 
-        let user2 = await User.findById(req.body.id);
-        ind = -1;
-        for (let i = 0; i < user2.friends.length; i++) {
-            if (user2.friends[i].user.equals(req.user)) {
-                ind = i;
-                break;
-            }
+        let friend = await Friend.findOne({
+            $and: [{ user1: user1._id }, { user2: user2._id }],
+        });
+        if (!friend) {
+            return res.status(400).json({ err: 'Friend request not found' });
         }
-        if (ind == -1) return res.status(400).json({ msg: 'cant find friend' });
-        user2.friends[ind].status = 'Accepted';
-        user2 = await user2.save();
 
-        // Send the mail to user who send the friend request that friend request has been accepted.
+        friend.status = 'accepted';
+        await friend.save();
+
+        // Send the mail to user "who sent the friend request".
         const url = `${CLIENT_URL}/`;
         transporter
             .sendMail({
-                to: user2.email,
-                subject: `${user1.username} has confirmed your friend request`,
-                html: `<h2>ChatApp</h2><br/> ${user1.username} has confirmed your friend request. Click on this  <a href="${url}">link</a> to start chatting with friends`,
+                to: user1.email,
+                subject: `${user2.username} has confirmed your friend request`,
+                html: `<h2>ChatApp</h2><br/> ${user2.username} has confirmed your friend request. Click on this  <a href="${url}">link</a> to start chatting with friends`,
             })
             .catch((error) => {
                 console.log(error);
             });
-        res.status(200).json({ msg: 'Friend Request Accepted' });
+        return res.status(200).json({ msg: 'Friend Request Accepted' });
     } catch (error) {
-        res.status(500).json({ err: 'server error' });
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
 Router.get('/getRequestList', auth, async (req, res) => {
     try {
-        // get user's pending request list.
-        let user = await User.findById(req.user).populate('friends.user');
-        if (!user) return res.status(404).json({ err: 'cant find user' });
+        // Get user's pending request list.
+        const friends = await Friend.find({
+            $and: [{ user2: req.user }, { status: 'pending' }],
+        }).populate('user1', 'username');
         let requestList = [];
-        for (let i = 0; i < user.friends.length; i++) {
-            if (user.friends[i].status === 'AcceptIt') {
-                requestList.push({
-                    id: user.friends[i].user._id,
-                    username: user.friends[i].user.username,
-                });
-            }
+        for (let i = 0; i < friends.length; i++) {
+            requestList.push({
+                id: friends[i].user1._id,
+                username: friends[i].user1.username,
+            });
         }
-        res.json({
-            requestList: requestList,
-        });
+        return res.status(200).json({ requestList: requestList });
     } catch (error) {
-        res.status(500).json({ err: 'server error' });
+        return res.status(500).json({ err: 'Server error' });
     }
 });
 
-
 Router.get('/getFriends', auth, async (req, res) => {
     try {
-        // get all friends details for friend list sidebar in frontend.
-        let user = await User.findById(req.user).populate('friends.user');
-        if (!user) return res.status(404).json({ err: 'cant find user'});
+        // Get all friends details for friend list sidebar in frontend.
+        const friends = await Friend.find({
+            $or: [{ user1: req.user }, { user2: req.user }],
+        })
+            .populate('user1')
+            .populate('user2');
 
         let friendsList = [];
         let requestCount = 0;
 
-        for (let i = 0; i < user.friends.length; i++) {
+        for (let i = 0; i < friends.length; i++) {
             // count the number of pending request.
-            if (user.friends[i].status === 'AcceptIt') requestCount++;
-            // only get friend if requet has been accepted and they are friend.
-            if (user.friends[i].status !== 'Accepted') continue;
-
-
-            let profilePic = { data: '', mimetype: 'image/jpeg' };
-            if (user.friends[i].user.profilePic && user.friends[i].user.profilePic.data) {
-                profilePic.data = Buffer.from(user.friends[i].user.profilePic.data).toString('base64');
-                profilePic.mimetype = user.friends[i].user.profilePic.contentType;
+            if (friends[i].status === 'pending') {
+                if (friends[i].user2._id == req.user) {
+                    requestCount++;
+                }
+                continue;
             }
-            // get thr last message and the time it was send.
-            let lastMessage = '';
-            let time = '';
-            if (user.friends[i].totalChatLength > 0) {
-                lastMessage = decryptMessage(user.friends[i].lastMessage.message);
-                time = user.friends[i].lastMessage.time;
+
+            let friendData = {};
+            if (req.user == friends[i].user1._id) {
+                friendData = friends[i].user2;
+            } else {
+                friendData = friends[i].user1;
+            }
+
+            const profilePic = { data: '', mimetype: 'image/jpeg' };
+            if (friendData.profilePic && friendData.profilePic.data) {
+                profilePic.data = Buffer.from(friendData.profilePic.data).toString('base64');
+                profilePic.mimetype = friendData.profilePic.contentType;
+            }
+            // get the last message and the time it was send.
+            let lastMessage = await Message.findOne({
+                $or: [
+                    { $and: [{ from: friends[i].user1._id }, { to: friends[i].user2._id }] },
+                    { $and: [{ from: friends[i].user2._id }, { to: friends[i].user1._id }] },
+                ],
+            })
+                .limit(1)
+                .sort({ $natural: -1 });
+
+            if (!lastMessage) {
+                lastMessage = { body: '', createdAt: '' };
             }
 
             friendsList.push({
-                friendId: user.friends[i].user._id,
-                username: user.friends[i].user.username,
+                friendId: friendData._id,
+                username: friendData.username,
                 profilePic: profilePic,
-                friendshipId: user.friends[i].friendshipId,
-                status: user.friends[i].status,
-                seenMessageCount: user.friends[i].seenMessageCount,
-                totalChatLength: user.friends[i].totalChatLength,
-                lastMessage: lastMessage,
-                time: time,
-            });   
+                friendshipId: friends[i]._id,
+                status: friends[i].status,
+                unseenMessageCount:
+                    req.user == friends[i].user1._id ? friends[i].unseenMessageCount1 : friends[i].unseenMessageCount2,
+                lastMessage: decryptMessage(lastMessage.body),
+                time: lastMessage.createdAt,
+            });
         }
-        res.json({
+        return res.status(200).json({
             requestCount,
             friendsList,
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ err: 'server error' });
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
@@ -471,7 +478,9 @@ Router.get('/getSimilarUsername', auth, async (req, res) => {
         // get the list of users whose username is matching with search query.
         const pattern = new RegExp('^' + req.query.searchQuery.trim());
         const mainUser = await User.findById(req.user);
-        const users = await User.find({ username: { $regex: pattern, $options: 'i' } })
+        const users = await User.find({
+            username: { $regex: pattern, $options: 'i' },
+        })
             .limit(25)
             .exec();
         let searchResult = [];
@@ -481,14 +490,23 @@ Router.get('/getSimilarUsername', auth, async (req, res) => {
             // if user who searched for this query is in this list then exclude that user.
             if (users[i]._id.equals(req.user)) continue;
 
-            // find if mainuser is friend(or previosly sended requert or pending request) with some user from friend list.
             let status = '';
-            for (let j = 0; j < mainUser.friends.length; j++) {
-                if (mainUser.friends[j].user.equals(users[i]._id)) {
-                    status = mainUser.friends[j].status;
-                    break;
+            let result = await Friend.findOne({
+                $or: [
+                    { $and: [{ user1: users[i]._id }, { user2: req.user }] },
+                    { $and: [{ user1: req.user }, { user2: users[i]._id }] },
+                ],
+            });
+
+            // Currently to align with frontend code, 'status' will be set using old method.
+            if (result) {
+                if (result.status == 'accepted') status = 'Accepted';
+                else {
+                    if (result.user1 == req.user) status = 'Requested';
+                    else status = 'AcceptIt';
                 }
             }
+
             searchResult.push({
                 id: users[i]._id,
                 username: users[i].username,

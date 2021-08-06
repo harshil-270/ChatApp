@@ -10,6 +10,8 @@ import FriendBox from './FriendBox';
 
 // sidebar compoent to show all friends. user can chat with friend by clicking on that friend from friendlist.
 
+const socket = io(URL);
+
 function FriendsList(props) {
     const [friendList, setFriendList] = useState([]);
     const [searchFriend, setSearchFriend] = useState('');
@@ -18,7 +20,6 @@ function FriendsList(props) {
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    const socket = io(URL);
     const User = useContext(UserContext);
     const friendsListRef = useRef(friendList);
     const receiverRef = useRef(props.receiver);
@@ -38,7 +39,9 @@ function FriendsList(props) {
         // change the title based on number of friends who has sent the message(but message has not been seen)
         let count = 0;
         for (let i = 0; i < friendList.length; i++) {
-            if (friendList[i].totalChatLength !== friendList[i].seenMessageCount) count++;
+            if (friendList[i].unseenMessageCount > 0) {
+                count++;
+            }
         }
         if (count > 0) document.title = `(${count})ChatApp`;
         else document.title = 'ChatApp';
@@ -76,7 +79,6 @@ function FriendsList(props) {
             setFriendRequestCount(res.data.requestCount);
             setIsDataFetched(true);
 
-
             socket.emit('join', { rooms: rooms });
             socket.on('message', ({ room, body, from, time }) => {
                 let newFriendList = friendsListRef.current;
@@ -92,10 +94,9 @@ function FriendsList(props) {
 
                 newFriendList[index].lastMessage = body;
                 newFriendList[index].time = time;
-                newFriendList[index].totalChatLength += 1;
-                // if message was sent by me then we had already seen the message or
-                // currently we are chatting with that user then we also had seen the message.
-                if (from === User.user.id || from === receiverRef.current) newFriendList[index].seenMessageCount += 1;
+                // If message was sent by me then we had already seen the message.
+                // If currently we are not chatting with the user who sent us this message, then increament unseeen message count.
+                if (from != User.user.id && from != receiverRef.current) newFriendList[index].unseenMessageCount += 1;
 
                 newFriendList = sortFriendList(newFriendList);
                 setFriendList([...newFriendList]);
@@ -141,26 +142,31 @@ function FriendsList(props) {
 
     return (
         <div className={`FriendList ${mobileFriendList}`}>
-            <div className='FriendListTopBar'>
+            <div className="FriendListTopBar">
                 <input
-                    type='text'
-                    className='FilterFriendInput'
-                    placeholder='Search Friend'
+                    type="text"
+                    className="FilterFriendInput"
+                    placeholder="Search Friend"
                     value={searchFriend}
                     onChange={(e) => setSearchFriend(e.target.value)}
                 />
-                <div className='RequestListIconDiv'>
-                    <Link to='/request'>
-                        <img src={userIcon} className='UserIcon' alt='userIcon' />
-                        <div className='FriendRequestCount'>{friendRequestCount}</div>
+                <div className="RequestListIconDiv">
+                    <Link to="/request">
+                        <img src={userIcon} className="UserIcon" alt="userIcon" />
+                        <div className="FriendRequestCount">{friendRequestCount}</div>
                     </Link>{' '}
                 </div>
             </div>
 
             {isDataFetched ? (
-               <FriendBox friendList={friendList} setFriendList={setFriendList} receiver={props.receiver} changeReceiver={props.changeReceiver} />
+                <FriendBox
+                    friendList={friendList}
+                    setFriendList={setFriendList}
+                    receiver={props.receiver}
+                    changeReceiver={props.changeReceiver}
+                />
             ) : (
-                <div className='LoadingSpinnerDiv'>
+                <div className="LoadingSpinnerDiv">
                     <LoadingSpinner />
                 </div>
             )}

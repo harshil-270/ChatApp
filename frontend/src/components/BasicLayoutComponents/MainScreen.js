@@ -9,7 +9,7 @@ function MainScreen() {
     const changeReceiver = (receiver) => {
         setReceiver(receiver);
     };
-    
+
     const handleWindowSizeChange = () => {
         setWindowWidth(window.innerWidth);
     };
@@ -21,7 +21,7 @@ function MainScreen() {
     }, []);
 
     return (
-        <div className='MainWindow'>
+        <div className="MainWindow">
             <FriendsList receiver={receiver} changeReceiver={changeReceiver} />
             <ChatWindow receiver={receiver} changeReceiver={changeReceiver} />
         </div>

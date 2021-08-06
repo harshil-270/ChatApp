@@ -69,9 +69,9 @@ function SearchPage(props) {
     };
 
     return (
-        <div className='SearchPageBackground'>
-            <div className='SearchWindow'>
-                <div className='SearchResultSubTitle'>Search Result for {searchQuery}</div>
+        <div className="SearchPageBackground">
+            <div className="SearchWindow">
+                <div className="SearchResultSubTitle">Search Result for {searchQuery}</div>
                 {isDataFetched === true ? (
                     searchResult.length ? (
                         <div>
@@ -79,24 +79,27 @@ function SearchPage(props) {
                                 // based on status render the search result list.
                                 if (result.status === 'Accepted') {
                                     return (
-                                        <div className='ResultLine' key={index}>
-                                            <div className='ResultName'>{result.username}</div>
-                                            <div className='AlreadyFriends'>Friends</div>
+                                        <div className="ResultLine" key={index}>
+                                            <div className="ResultName">{result.username}</div>
+                                            <div className="AlreadyFriends">Friends</div>
                                         </div>
                                     );
                                 } else if (result.status === 'Requested') {
                                     return (
-                                        <div className='ResultLine' key={index}>
-                                            <div className='ResultName'>{result.username}</div>
-                                            <div className='Requested'>Requested</div>
+                                        <div className="ResultLine" key={index}>
+                                            <div className="ResultName">{result.username}</div>
+                                            <div className="Requested">Requested</div>
                                         </div>
                                     );
                                 } else if (result.status === 'AcceptIt') {
                                     return (
-                                        <div className='ResultLine' key={index}>
-                                            <div className='ResultName'>{result.username}</div>
-                                            <div className='AcceptItDiv'>
-                                                <button className='btnstyle1 AcceptIt' onClick={(e) => AcceptRequest(e, index)}>
+                                        <div className="ResultLine" key={index}>
+                                            <div className="ResultName">{result.username}</div>
+                                            <div className="AcceptItDiv">
+                                                <button
+                                                    className="btnstyle1 AcceptIt"
+                                                    onClick={(e) => AcceptRequest(e, index)}
+                                                >
                                                     Accept
                                                 </button>
                                             </div>
@@ -104,12 +107,13 @@ function SearchPage(props) {
                                     );
                                 } else {
                                     return (
-                                        <div className='ResultLine' key={index}>
-                                            <div className='ResultName'>{result.username}</div>
-                                            <div className='SendFriendRequestDiv'>
+                                        <div className="ResultLine" key={index}>
+                                            <div className="ResultName">{result.username}</div>
+                                            <div className="SendFriendRequestDiv">
                                                 <button
-                                                    className='btnstyle1 SendFriendRequest'
-                                                    onClick={(e) => sendFriendRequest(e, index)}>
+                                                    className="btnstyle1 SendFriendRequest"
+                                                    onClick={(e) => sendFriendRequest(e, index)}
+                                                >
                                                     Send Friend Request
                                                 </button>
                                             </div>
@@ -122,7 +126,7 @@ function SearchPage(props) {
                         <div>No results found</div>
                     )
                 ) : (
-                    <div className='LoadingSpinnerDiv'>
+                    <div className="LoadingSpinnerDiv">
                         <LoadingSpinner />
                     </div>
                 )}

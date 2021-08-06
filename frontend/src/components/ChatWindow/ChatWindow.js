@@ -12,33 +12,32 @@ import UserContext from '../../context/UserContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 /*
 first get the list of all friends and chats
 connect to socket using unique friendshipid's.
 whenever user sends message or file insert it into the mongodb database and also emit socket event to friend.
 */
 
+let socket = io(URL);
 
 function ChatWindow(props) {
     const [chats, setChats] = useState([]);
     const [selectedFriend, setSelectFriend] = useState(-1);
     const [message, setMessage] = useState('');
-    const [seenMessageCount, setSeenMessageCount] = useState([]);
+    const [unseenMessageCount, setUnseenMessageCount] = useState([]);
 
     const [file, setFile] = useState(null);
     const [isFilePreviewOpened, setIsFilePreviewOpened] = useState(false);
-    
+
     const [mobileChatWindowClass, setMobileChatWindowClass] = useState('');
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    let socket = io(URL);
     let timeout = undefined;
 
     const User = useContext(UserContext);
     const chatsRef = useRef(chats);
     const selectedFriendRef = useRef(selectedFriend);
-    const seenMessageCountRef = useRef(seenMessageCount);
+    const unseenMessageCountRef = useRef(unseenMessageCount);
     const inputFile = useRef(null);
 
     // breakpoint between desktop view and mobile view.
@@ -47,7 +46,7 @@ function ChatWindow(props) {
     useEffect(() => {
         chatsRef.current = chats;
         selectedFriendRef.current = selectedFriend;
-        seenMessageCountRef.current = seenMessageCount;
+        unseenMessageCountRef.current = unseenMessageCount;
     });
     useEffect(() => {
         const connectSocket = async () => {
@@ -55,25 +54,24 @@ function ChatWindow(props) {
             const token = localStorage.getItem('auth-token');
             const res = await axios.get(`${URL}/messages/getFriendsChat`, { headers: { 'x-auth-token': token } });
 
-            let newSeenMessageCount = [];
+            let newUnseenMessageCount = [];
             for (let i = 0; i < res.data.friendsChat.length; i++) {
-                newSeenMessageCount.push({
+                newUnseenMessageCount.push({
                     friendId: res.data.friendsChat[i].friendId,
-                    count: res.data.friendsChat[i].seenMessageCount,
+                    count: res.data.friendsChat[i].unseenMessageCount,
                 });
             }
-            setSeenMessageCount([...newSeenMessageCount]);
+            setUnseenMessageCount([...newUnseenMessageCount]);
             setChats(res.data.friendsChat);
 
             // connect to socket room using friendshipIds
             let rooms = [];
-            for (let i = 0; i < res.data.friendsChat.length; i++)
-                rooms.push(res.data.friendsChat[i].friendshipId);
+            for (let i = 0; i < res.data.friendsChat.length; i++) rooms.push(res.data.friendsChat[i].friendshipId);
             socket.emit('join', { rooms: rooms });
-            
+
             socket.on('message', ({ room, id, body, type, from, to, time }) => {
                 let newChats = chatsRef.current;
-                let newSeenMessageCount = seenMessageCountRef.current;
+                let newUnseenMessageCount = unseenMessageCountRef.current;
 
                 // find the index of the friend who send the message.
                 let index = -1;
@@ -85,23 +83,26 @@ function ChatWindow(props) {
                 }
                 if (index === -1) return;
 
-                // if message is sent by me then we have already added message to state.
+                // If message is sent by me then we have already added message to state.
                 if (from === User.user.id) return;
 
-                // add new message to chats.
+                // Add new message to chats.
                 newChats[index].chat.push({ id, from, to, body, type, time });
 
-                // if currently user is chating with friend then user has already seen the message so update the seen message count.
+                // If currently user is chating with friend then user has already seen the message so update the seen message count.
                 if (selectedFriendRef.current !== -1 && from === newChats[selectedFriendRef.current].friendId) {
-                    newSeenMessageCount[index].count = newChats[index].chat.length;
+                    newUnseenMessageCount[index].count = 0;
                     const token = localStorage.getItem('auth-token');
                     axios.post(
-                        `${URL}/messages/updateSeenMessages`,
-                        { seenMessageCount: newSeenMessageCount[index].count, receiver: from },
+                        `${URL}/messages/decrementUnseenMessageCount`,
+                        { receiver: from },
                         { headers: { 'x-auth-token': token } }
                     );
+                } else {
+                    newUnseenMessageCount[index].count += 1;    
                 }
-
+                
+                setUnseenMessageCount([...newUnseenMessageCount]);
                 setChats([...newChats]);
             });
         };
@@ -115,7 +116,7 @@ function ChatWindow(props) {
 
     useEffect(() => {
         // if chats is updated then scroll to the latest message.
-        let element = document.getElementById('AllChats');
+        const element = document.getElementById('AllChats');
         if (element) element.scrollTop = element.scrollHeight;
     }, [chats]);
 
@@ -133,25 +134,29 @@ function ChatWindow(props) {
             console.log('Cant fetch chat index = -1');
             return;
         }
-        // update selected friend and we currently selected a new friend so we might have seen some unseen message so update seen message count.
-        let newSeenMessageCount = seenMessageCount;
-        newSeenMessageCount[index].count = chats[index].chat.length;
+        // Update selected friend.
         setSelectFriend(index);
-        setSeenMessageCount([...newSeenMessageCount]);
-        
+
         const token = localStorage.getItem('auth-token');
-        axios.post(`${URL}/messages/updateSeenMessages`,
-            { seenMessageCount: seenMessageCount[index].count, receiver: props.receiver },
+        axios.post(
+            `${URL}/messages/updateSeenMessages`,
+            { unseenMessageCount: 0, receiver: props.receiver },
             { headers: { 'x-auth-token': token } }
         );
 
-        // scroll to the top of unseen message.
-        const element = document.getElementById('focusMessageId');
-        if (element) document.getElementById('AllChats').scrollTop = element.offsetTop;
+        setTimeout(() => {
+            // Scroll to the top of unseen message.
+            const element = document.getElementById('focusMessageId');
+            if (element) document.getElementById('AllChats').scrollTop = element.offsetTop;
+
+            let newUnseenMessageCount = unseenMessageCount;
+            newUnseenMessageCount[index].count = 0;
+            setUnseenMessageCount([...newUnseenMessageCount]);
+        }, 300);
     }, [props.receiver]);
 
     useEffect(() => {
-        // change classNames according to window width.
+        // Change classNames according to window width.
         if (windowWidth <= breakpoint) {
             if (selectedFriend === -1) setMobileChatWindowClass('MobileHideChatWindow');
             else setMobileChatWindowClass('MobileShowChatWindow');
@@ -181,6 +186,7 @@ function ChatWindow(props) {
 
         setMessage(e.target.value);
     };
+
     const sendMessage = async (e) => {
         e.preventDefault();
 
@@ -190,13 +196,18 @@ function ChatWindow(props) {
         const room = chats[selectedFriend].friendshipId;
         const curTime = new Date();
 
-        axios.post(`${URL}/messages/addChat`, {
-            receiver: props.receiver,
-            message: message,
-        }, {
-            headers: { 'x-auth-token': token },
-        })
-        .catch((err) => console.log('Cant add chat. request failed'));
+        axios
+            .post(
+                `${URL}/messages/addChat`,
+                {
+                    receiver: props.receiver,
+                    message: message,
+                },
+                {
+                    headers: { 'x-auth-token': token },
+                }
+            )
+            .catch((err) => console.log('Cant add chat. request failed'));
 
         socket.emit('sendMessage', {
             room: room,
@@ -207,9 +218,9 @@ function ChatWindow(props) {
             time: curTime,
         });
 
-        // insert message to chat array and update seen message count.
+        // Insert message to chat array and update unseen message count.
         let newChats = chats;
-        let newSeenMessageCount = seenMessageCount;
+        let newUnseenMessageCount = unseenMessageCount;
         newChats[selectedFriend].chat.push({
             body: message,
             type: 'message',
@@ -217,10 +228,10 @@ function ChatWindow(props) {
             to: props.receiver,
             time: curTime,
         });
-        newSeenMessageCount[selectedFriend].count = newChats[selectedFriend].chat.length;
+        newUnseenMessageCount[selectedFriend].count = 0;
 
         setChats([...newChats]);
-        setSeenMessageCount([...newSeenMessageCount]);
+        setUnseenMessageCount([...newUnseenMessageCount]);
         setMessage('');
 
         typingTimeout();
@@ -240,7 +251,6 @@ function ChatWindow(props) {
     };
     const sendFile = async () => {
         try {
-
             const formData = new FormData();
             formData.append('file', file);
             formData.append('receiver', chats[selectedFriend].friendId);
@@ -266,9 +276,9 @@ function ChatWindow(props) {
                 time: curTime,
             });
 
-            // insert filename to the chat array and update seen message count.
+            // Insert filename to the chat array and update seen message count.
             let newChats = chats;
-            let newSeenMessageCount = seenMessageCount;
+            let newUnseenMessageCount = unseenMessageCount;
             newChats[selectedFriend].chat.push({
                 id: res.data._id,
                 body: file.name,
@@ -277,12 +287,12 @@ function ChatWindow(props) {
                 to: props.receiver,
                 time: curTime,
             });
-            newSeenMessageCount[selectedFriend].count = newChats[selectedFriend].chat.length;
+            newUnseenMessageCount[selectedFriend].count = 0;
 
             setChats([...newChats]);
-            setSeenMessageCount([...newSeenMessageCount]);
+            setUnseenMessageCount([...newUnseenMessageCount]);
 
-            // after file is sent, close the file preview modal.
+            // After file is sent, close the file preview modal.
             closeFilePreview();
         } catch (error) {
             closeFilePreview();
@@ -294,8 +304,17 @@ function ChatWindow(props) {
         <div className={`ChatWindow ${mobileChatWindowClass}`}>
             {selectedFriend !== -1 ? (
                 <>
-                    <ChatWindowHeader friend={chats[selectedFriend]} windowWidth={windowWidth} setSelectFriend={setSelectFriend} changeReceiver={props.changeReceiver} />
-                    <ChatWindowMessages chats={chats} selectedFriend={selectedFriend} seenMessageCount={seenMessageCount} />
+                    <ChatWindowHeader
+                        friend={chats[selectedFriend]}
+                        windowWidth={windowWidth}
+                        setSelectFriend={setSelectFriend}
+                        changeReceiver={props.changeReceiver}
+                    />
+                    <ChatWindowMessages
+                        chats={chats}
+                        selectedFriend={selectedFriend}
+                        unseenMessageCount={unseenMessageCount}
+                    />
                     <ChatWindowFooter
                         inputFile={inputFile}
                         handleSelectedFile={handleSelectedFile}
@@ -305,7 +324,7 @@ function ChatWindow(props) {
                     />
                 </>
             ) : (
-                <div id='EmptyChatWindow'></div>
+                <div id="EmptyChatWindow"></div>
             )}
 
             <SendFileModal

@@ -31,19 +31,6 @@ const userSchema = new mongoose.Schema(
         expiryTime: {
             type: Number,
         },
-        friends: [
-            {
-                user: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: 'User',
-                },
-                status: String,
-                friendshipId: mongoose.Schema.Types.ObjectId,
-                lastMessage: { message: String, time: String },
-                seenMessageCount: { type: Number, default: 0 },
-                totalChatLength: { type: Number, default: 0 },
-            },
-        ],
     },
     {
         timestamps: true,

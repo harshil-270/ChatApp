@@ -1,11 +1,14 @@
 const Router = require('express').Router();
 const User = require('../models/users');
+const Friend = require('../models/friends');
 const Message = require('../models/messages');
-const auth = require('../auth/auth');
+
 const CryptoJS = require('crypto-js');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const fs = require('fs');
+
+const auth = require('../auth/auth');
 require('dotenv').config();
 
 const storage = multer.diskStorage({
@@ -50,30 +53,39 @@ const decryptMessage = (message) => {
 
 Router.get('/getFriendsChat', auth, async (req, res) => {
     try {
-        let user = await User.findById(req.user).populate('friends.user');
-        if (!user) return res.status(404).json({ err: 'cant find user' });
-
-        // get chat with all friends and also get friends other details.
+        const friends = await Friend.find({
+            $or: [
+                { $and: [{ user1: req.user }, { status: 'accepted' }] },
+                { $and: [{ user2: req.user }, { status: 'accepted' }] },
+            ],
+        })
+            .populate('user1')
+            .populate('user2');
 
         let friendsChat = [];
-        for (let i = 0; i < user.friends.length; i++) {
-            let friend = {
-                username: user.friends[i].user.username,
-                friendId: user.friends[i].user._id,
+        for (let i = 0; i < friends.length; i++) {
+            let friendData = {};
+            if (req.user == friends[i].user1._id) friendData = friends[i].user2;
+            else friendData = friends[i].user1;
+
+            const friend = {
+                username: friendData.username,
+                friendId: friendData._id,
                 profilePic: {
-                    data: Buffer.from(user.friends[i].user.profilePic.data).toString('base64'),
-                    mimetype: user.friends[i].user.profilePic.contentType,
+                    data: Buffer.from(friendData.profilePic.data).toString('base64'),
+                    mimetype: friendData.profilePic.contentType,
                 },
-                friendshipId: user.friends[i].friendshipId,
-                seenMessageCount: user.friends[i].seenMessageCount,
+                friendshipId: friends[i]._id,
+                unseenMessageCount:
+                    req.user == friends[i].user1._id ? friends[i].unseenMessageCount1 : friends[i].unseenMessageCount2,
                 chat: [],
             };
 
-            // fetch all messages between user and current friend.
+            // Fetch all messages between user and current friend.
             const messages = await Message.find({
                 $or: [
-                    { $and: [{ from: user._id }, { to: user.friends[i].user._id }] },
-                    { $and: [{ to: user._id }, { from: user.friends[i].user._id }] },
+                    { $and: [{ from: req.user }, { to: friendData._id }] },
+                    { $and: [{ from: friendData._id }, { to: req.user }] },
                 ],
             });
 
@@ -98,7 +110,7 @@ Router.get('/getFriendsChat', auth, async (req, res) => {
 
 Router.post('/addChat', auth, async (req, res) => {
     try {
-        let encryptedMessage = encryptMessage(req.body.message);
+        const encryptedMessage = encryptMessage(req.body.message);
         let message = new Message({
             from: req.user,
             to: req.body.receiver,
@@ -107,61 +119,62 @@ Router.post('/addChat', auth, async (req, res) => {
         });
         message = await message.save();
 
-        let user1 = await User.findById(req.user);
-        if (!user1) return res.status(404).json({ err: 'User not found' });
-        ind = -1;
-        for (let i = 0; i < user1.friends.length; i++) {
-            if (user1.friends[i].user == req.body.receiver) {
-                ind = i;
-                break;
-            }
-        }
-        if (ind == -1) return res.status(404).json({ err: 'Friend not found' });
-        user1.friends[ind].lastMessage = { message: encryptedMessage, time: message.createdAt };
-        user1.friends[ind].seenMessageCount += 1;
-        user1.friends[ind].totalChatLength += 1;
-        await user1.save();
+        await Friend.updateOne(
+            { $and: [{ user1: req.body.receiver }, { user2: req.user }] },
+            { $inc: { unseenMessageCount1: 1 } }
+        );
+        await Friend.updateOne(
+            { $and: [{ user2: req.body.receiver }, { user1: req.user }] },
+            { $inc: { unseenMessageCount2: 1 } }
+        );
 
-        let user2 = await User.findById(req.body.receiver);
-        if (!user2) return res.status(404).json({ err: 'User not found' });
-        ind = -1;
-        for (let i = 0; i < user2.friends.length; i++) {
-            if (user2.friends[i].user == req.user) {
-                ind = i;
-                break;
-            }
-        }
-        if (ind == -1) return res.status(404).json({ err: 'Friend not found' });
-        user2.friends[ind].lastMessage = { message: encryptedMessage, time: message.createdAt };
-        user2.friends[ind].totalChatLength += 1;
-        await user2.save();
-
-        res.json({
+        return res.status(200).json({
             time: message.createdAt,
             msg: 'Chat added',
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ err: 'Servernp error' });
     }
 });
 
 Router.post('/updateSeenMessages', auth, async (req, res) => {
     try {
-        let user = await User.findById(req.user);
-        for (let i = 0; i < user.friends.length; i++) {
-            if (user.friends[i].user == req.body.receiver) {
-                user.friends[i].seenMessageCount = req.body.seenMessageCount;
-                break;
-            }
-        }
-        await user.save();
-        res.json({ msg: 'Last seen Message Count Updated' });
+        await Friend.updateOne(
+            { $and: [{ user1: req.user }, { user2: req.body.receiver }] },
+            { $set: { unseenMessageCount1: req.body.unseenMessageCount } }
+        );
+        await Friend.updateOne(
+            { $and: [{ user2: req.user }, { user1: req.body.receiver }] },
+            { $set: { unseenMessageCount2: req.body.unseenMessageCount } }
+        );
+
+        return res.status(200).json({ msg: 'Last seen Message Count Updated' });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ err: 'Server error' });
     }
 });
 
-// Uploading files to AWS S3
+Router.post('/decrementUnseenMessageCount', auth, async (req, res) => {
+    try {
+        await Friend.updateOne(
+            { $and: [{ user1: req.user }, { user2: req.body.receiver }] },
+            { $inc: { unseenMessageCount1: -1 } }
+        );
+        await Friend.updateOne(
+            { $and: [{ user2: req.user }, { user1: req.body.receiver }] },
+            { $inc: { unseenMessageCount2: -1 } }
+        );
+
+        return res.status(200).json({ msg: 'Last seen Message Count Updated' });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ err: 'Server error' });
+    }
+});
+
+// Uploading files to AWS S3.
 Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
     try {
         let message = new Message({
@@ -172,18 +185,18 @@ Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
         });
         message = await message.save();
 
-        // config the aws s3 bucket
-        let s3bucket = new AWS.S3({
+        // Config the aws s3 bucket
+        const s3bucket = new AWS.S3({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccesskey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION,
         });
 
         const fileBuffer = fs.readFileSync(req.file.path);
-        // extract the file extension from file name.
+        // Extract the file extension from file name.
         const myFile = req.file.originalname.split('.');
         const fileExtension = myFile[myFile.length - 1];
-        // storing file in s3 with key as message id
+        // Storing file in s3 with key as message id
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: `${message._id.toString()}.${fileExtension}`,
@@ -192,47 +205,24 @@ Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
             ACL: 'public-read',
         };
 
-        // upload file to s3 bucket
+        // Upload file to s3 bucket.
         s3bucket.upload(params, async (err, data) => {
             if (err) {
                 await Message.findByIdAndDelete(message._id);
                 return res.status(500).json({ err: 'Server error' });
             }
-            // update both sender and receiver user's last message as file's name.
-            let user1 = await User.findById(req.user);
-            if (!user1) return res.status(404).json({ err: 'User not found' });
-            // in user1's friendlist find the index of receiver friend.
-            ind = -1;
-            for (let i = 0; i < user1.friends.length; i++) {
-                if (user1.friends[i].user == req.body.receiver) {
-                    ind = i;
-                    break;
-                }
-            }
-            if (ind == -1) return res.status(404).json({ err: 'Friend not found' });
-            // update the details.
-            user1.friends[ind].lastMessage = { message: encryptMessage(req.file.originalname), time: message.createdAt };
-            user1.friends[ind].seenMessageCount += 1;
-            user1.friends[ind].totalChatLength += 1;
-            await user1.save();
+            const friend = await Friend.findOne({
+                $or: [
+                    { $and: [{ user1: req.user }, { user2: req.body.receiver }] },
+                    { $and: [{ user2: req.body.receiver }, { user1: req.user }] },
+                ],
+            });
 
-            let user2 = await User.findById(req.body.receiver);
-            if (!user2) return res.status(404).json({ err: 'User not found' });
-            // In user2's friendlist find the index of friend.
-            ind = -1;
-            for (let i = 0; i < user2.friends.length; i++) {
-                if (user2.friends[i].user == req.user) {
-                    ind = i;
-                    break;
-                }
-            }
-            if (ind == -1) return res.status(404).json({ err: 'Friend not found' });
-            // update the details of user2.
-            user2.friends[ind].lastMessage = { message: encryptMessage(req.file.originalname), time: message.createdAt };
-            user2.friends[ind].totalChatLength += 1;
-            await user2.save();
+            if (friend.user1 == req.body.receiver) friend.unseenMessageCount1 += 1;
+            else friend.unseenMessageCount2 += 1;
+            await friend.save();
 
-            res.status(200).json(message);
+            return res.status(200).json(message);
         });
     } catch (error) {
         console.log(error);
@@ -246,7 +236,7 @@ Router.get('/downloadFile', auth, async (req, res) => {
         if (!message) return res.status(404).json({ err: 'file not found' });
 
         // config the aws s3
-        let s3bucket = new AWS.S3({
+        const s3bucket = new AWS.S3({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccesskey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION,
@@ -264,9 +254,9 @@ Router.get('/downloadFile', auth, async (req, res) => {
             },
             (err, data) => {
                 if (err) {
-                    return res.status(500).json({ err: 'server error' });
+                    return res.status(500).json({ err: 'Server error' });
                 }
-                // return the file.
+                // Return the file.
                 res.status(200).send(data.Body);
             }
         );
@@ -276,11 +266,11 @@ Router.get('/downloadFile', auth, async (req, res) => {
     }
 });
 
-// when user tries to download file this route is used to get file data.
+// When user tries to download file, this route is used to get file data.
 Router.get('/getFileData', auth, async (req, res) => {
     try {
-        let message = await Message.findById(req.query.id);
-        if (!message) return res.status(404).json({ err: 'file not found' });
+        const message = await Message.findById(req.query.id);
+        if (!message) return res.status(404).json({ err: 'File not found' });
 
         res.status(200).json({ body: decryptMessage(message.body) });
     } catch (error) {

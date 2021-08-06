@@ -12,6 +12,7 @@ const { CLIENT_URL } = require('./config/config');
 var io = socketio(server, {
     cors: {
         origin: CLIENT_URL,
+        credentials: true,
     },
 });
 
@@ -44,10 +45,14 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }, (err) => {
-    if (err) throw err;
-    console.log('MongoDB is connected');
-});
+mongoose.connect(
+    process.env.MONGO_URI,
+    { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true },
+    (err) => {
+        if (err) throw err;
+        console.log('MongoDB is connected');
+    }
+);
 
 const port = process.env.PORT || 5000;
 server.listen(port, () => {
