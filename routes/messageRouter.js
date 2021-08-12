@@ -1,5 +1,4 @@
 const Router = require('express').Router();
-const User = require('../models/users');
 const Friend = require('../models/friends');
 const Message = require('../models/messages');
 
@@ -7,6 +6,8 @@ const CryptoJS = require('crypto-js');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const fs = require('fs');
+const {promisify} = require('util');
+const unlinkAsync = promisify(fs.unlink)
 
 const auth = require('../auth/auth');
 require('dotenv').config();
@@ -19,25 +20,11 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + file.originalname);
     },
 });
-
-const fileFilter = (req, file, cb) => {
-    // check file extension
-    if (
-        !file.originalname.match(
-            /\.(jpeg|jpg|png|gif|mp3|mp4|avi|txt|c|cpp|js|py|java|html|css|pdf|doc|docx|ppt|pptx|xlsx|xls|psd)$/
-        )
-    ) {
-        return cb('File Extension not supported', false);
-    }
-    cb(null, true);
-};
-
 const upload = multer({
     storage: storage,
     limits: {
         fileSize: 1024 * 1024 * 5, // file size limit - 5mb
     },
-    fileFilter: fileFilter,
 });
 
 // encrypt message before storing it in database.
@@ -196,31 +183,33 @@ Router.post('/uploadFile', upload.single('file'), auth, async (req, res) => {
         // Extract the file extension from file name.
         const myFile = req.file.originalname.split('.');
         const fileExtension = myFile[myFile.length - 1];
+
         // Storing file in s3 with key as message id
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: `${message._id.toString()}.${fileExtension}`,
             Body: fileBuffer,
             ContentType: req.file.mimetype,
-            ACL: 'public-read',
         };
 
         // Upload file to s3 bucket.
         s3bucket.upload(params, async (err, data) => {
+            // Remove the file stored by multer.
+            await unlinkAsync(req.file.path);
+
             if (err) {
                 await Message.findByIdAndDelete(message._id);
                 return res.status(500).json({ err: 'Server error' });
             }
-            const friend = await Friend.findOne({
-                $or: [
-                    { $and: [{ user1: req.user }, { user2: req.body.receiver }] },
-                    { $and: [{ user2: req.body.receiver }, { user1: req.user }] },
-                ],
-            });
 
-            if (friend.user1 == req.body.receiver) friend.unseenMessageCount1 += 1;
-            else friend.unseenMessageCount2 += 1;
-            await friend.save();
+            await Friend.updateOne(
+                { $and: [{ user1: req.body.receiver }, { user2: req.user }] },
+                { $inc: { unseenMessageCount1: 1 } }
+            );
+            await Friend.updateOne(
+                { $and: [{ user2: req.body.receiver }, { user1: req.user }] },
+                { $inc: { unseenMessageCount2: 1 } }
+            );
 
             return res.status(200).json(message);
         });
@@ -235,14 +224,14 @@ Router.get('/downloadFile', auth, async (req, res) => {
         let message = await Message.findById(req.query.id);
         if (!message) return res.status(404).json({ err: 'file not found' });
 
-        // config the aws s3
+        // Config the aws s3.
         const s3bucket = new AWS.S3({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccesskey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION,
         });
 
-        // get the file from aws s3 bucket using key
+        // Get the file from aws s3 bucket using key
         // key = message id + file extension
 
         const myFile = decryptMessage(message.body).split('.');
