@@ -11,6 +11,7 @@ import { URL } from '../utils/Config';
 import UserContext from '../../context/UserContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useFullPageLoader from '../utils/useFullPageLoader';
 
 /*
 first get the list of all friends and chats
@@ -26,12 +27,15 @@ function ChatWindow(props) {
     const [message, setMessage] = useState('');
     const [unseenMessageCount, setUnseenMessageCount] = useState([]);
 
+    // States related to upload file functionality.
     const [file, setFile] = useState(null);
     const [isFilePreviewOpened, setIsFilePreviewOpened] = useState(false);
+    const [loader, showLoader, hideLoader] = useFullPageLoader();
 
     const [mobileChatWindowClass, setMobileChatWindowClass] = useState('');
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
+    // This timeout is used in the implementation of "typing indicator".
     let timeout = undefined;
 
     const User = useContext(UserContext);
@@ -255,6 +259,9 @@ function ChatWindow(props) {
             formData.append('file', file);
             formData.append('receiver', chats[selectedFriend].friendId);
 
+            // Show full screen loader.
+            showLoader();
+
             const token = localStorage.getItem('auth-token');
             const res = await axios.post(`${URL}/messages/uploadFile`, formData, {
                 headers: {
@@ -263,7 +270,9 @@ function ChatWindow(props) {
                 },
             });
 
-            // send the file to the friend.
+            hideLoader();
+
+            // Send the file to the friend.
             const room = chats[selectedFriend].friendshipId;
             const curTime = new Date();
             socket.emit('sendMessage', {
@@ -296,7 +305,7 @@ function ChatWindow(props) {
             closeFilePreview();
         } catch (error) {
             closeFilePreview();
-            toast('Unable to send file. Either file extension not supported or server error');
+            toast('Unable to send file. Looks like some server issue.');
         }
     };
 
@@ -332,6 +341,7 @@ function ChatWindow(props) {
                 closeFilePreview={closeFilePreview}
                 file={file}
                 sendFile={sendFile}
+                loader={loader}
             />
             <ToastContainer />
         </div>

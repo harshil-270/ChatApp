@@ -6,7 +6,7 @@ import fileIcon2 from '../../assets/fileIcon2.png';
 
 // whenever user will select some file to send. this component will show modal with file's detail and send button.
 
-function SendFileModal({ isFilePreviewOpened, closeFilePreview, file, sendFile }) {
+function SendFileModal({ isFilePreviewOpened, closeFilePreview, file, sendFile, loader }) {
     return (
         <Modal
             isOpen={isFilePreviewOpened}
@@ -36,6 +36,7 @@ function SendFileModal({ isFilePreviewOpened, closeFilePreview, file, sendFile }
                     <img src={closeIcon} width="15px" height="15px" alt="close icon" />
                 </button>
             </div>
+            {loader}
         </Modal>
     );
 }
