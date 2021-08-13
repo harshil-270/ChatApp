@@ -1,0 +1,73 @@
+#header {
+    display: flex;
+    background-color: #004e89;
+    height: 60px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3px;
+
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#title {
+    margin: 0;
+    padding: 0 1rem;
+    color: white;
+}
+
+.SearchForm {
+    display: flex;
+}
+.SearchBar {
+    height: 23px;
+    padding: 6px;
+    margin-right: 5px;
+    border-radius: 4px;
+    outline: none;
+}
+.SearchIcon {
+    width: 22px;
+    height: 22px;
+}
+
+@media (max-width: 600px) {
+    #title {
+        font-size: 1.3rem;
+        padding: 0 0;
+        padding-left: 10px;
+    }
+    .SearchBar {
+        width: 120px;
+        height: 22px;
+        margin-right: 0px;
+        border-radius: 4px;
+        outline: none;
+    }
+    .SearchIcon {
+        width: 22px;
+        height: 21px;
+    }
+}
+
+#header .auth-buttons {
+    height: 50%;
+    display: flex;
+}
+#header .auth-buttons button {
+    padding: 0 1rem;
+    background-color: rgb(150, 215, 245);
+    border-width: 1px;
+    margin-right: 5px;
+    border-radius: 3px;
+    font-size: 1.1 rem;
+}
+#header .auth-buttons button:hover {
+    background-color: rgb(211, 236, 248);
+}
+
+.MenuIconDiv {
+    display: flex;
+    height: 100%;
+    align-items: center;
+}

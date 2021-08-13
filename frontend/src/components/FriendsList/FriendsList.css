@@ -1,0 +1,147 @@
+.FriendList {
+    width: 27%;
+    background-color: #ffffff;
+    color: #ffffff;
+    overflow-y: auto;
+}
+.MobileShowFriendList {
+    width: 100%;
+}
+.MobileHideFriendList {
+    width: 0%;
+    height: 0;
+}
+
+.FriendListTopBar {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    align-items: center;
+}
+
+.SearchIconDiv {
+    align-items: center;
+    width: 22px;
+    height: 24px;
+    margin-left: 5px;
+}
+
+.SearchIcon {
+    width: 22px;
+    height: 22px;
+}
+
+.FilterFriendInput {
+    width: 100%;
+    font-size: 1rem;
+    padding-left: 3px;
+    border: 0;
+    outline: none;
+}
+
+.RequestListIconDiv {
+    position: relative;
+    height: 32px;
+    margin-right: 10px;
+}
+
+.FriendRequestCount {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    border-radius: 50%;
+    height: 15px;
+    width: 15px;
+    line-height: 15px;
+    background-color: #ffd49d;
+    padding-left: 3px;
+}
+
+.UserIcon {
+    width: 31px;
+    height: 31px;
+}
+
+.FriendBox {
+    display: flex;
+    align-items: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin: 7px 7px;
+    border: 1px solid rgba(112, 124, 151, 0.25);
+    outline: none;
+    color: #707C97;
+    overflow-x: hidden;
+    cursor: pointer;
+    border-radius: 10px 10px 10px 10px;
+}
+
+.FriendBox:hover {
+    background: rgb(124,184,247);
+    background: linear-gradient(135deg, rgba(124,184,247,1) 0%, rgba(42,139,242,1) 100%);
+    color: #ffffff;
+}
+
+.SelectedFriend {
+    background: rgb(124,184,247);
+    background: linear-gradient(135deg, rgba(124,184,247,1) 0%, rgba(42,139,242,1) 100%);
+    color: #ffffff;
+}
+
+.FriendBoxProfilePicDiv {
+    width: 50px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.FriendProfilePic {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.FriendBoxDetailsContainer {
+    width: 100%;
+    text-align: left;
+}
+.NameAndCountDiv {
+    display: flex;
+    justify-content: space-between;
+}
+.FriendBoxName {
+    font-size: 1.1rem;
+    overflow-x: hidden;
+    padding-bottom: 8px;
+}
+.UnseenMessageCount {
+    width: 22px;
+    height: 22px;
+    margin-top: -5px;
+    margin-right: 5px;
+    font-size: 15px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 23px;
+    border-radius: 50%;
+    border: 1px solid rgba(112, 124, 151, 0.8);
+    color: #ffffff;
+    background: rgb(124,184,247);
+    background: linear-gradient(135deg, rgba(124,184,247,1) 0%, rgba(42,139,242,1) 100%);
+}
+.UnseenMessageCount0 {
+    opacity: 0;
+}
+
+.FriendBoxLastMessage {
+    font-size: 0.8rem;
+    width: calc(100% - 60px);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.Typing {
+    font-size: 0.86rem;
+    color: #00b109;
+    font-weight: 550;
+}

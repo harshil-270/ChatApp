@@ -29,16 +29,11 @@ body {
     height: 100%;
 }
 .AppContainer {
-    height: 91%;
-    min-height: 91%;
-    max-width: 1100px;
+    height: 100%;
+    min-height: 100%;
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    background-color: white;
-}
-.HomePage {
-    height: 100%;
-    max-width: 1100px;
     background-color: white;
 }
 
@@ -56,12 +51,12 @@ input[type='submit'] {
     margin-right: auto;
 }
 .LoadingSpinnerImg {
-    max-height: 90px;
-    max-width: 90px;
+    max-height: 80px;
+    max-width: 80px;
 }
 .LoadingSpinnerImgSmall {
-    max-height: 60px;
-    max-width: 60px;
+    max-height: 55px;
+    max-width: 55px;
 }
 
 .fullPageLoaderContainer {
@@ -75,85 +70,11 @@ input[type='submit'] {
 .fullPageLoaderContainer .fullPageLoader {
     max-height: 60px;
     max-width: 60px;
-    top: 18%;
-    left: 40%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
     z-index: 1000;
     position: absolute;
-}
-
-
-#header {
-    display: flex;
-    background-color: #004e89;
-    height: 60px;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 3px;
-
-    max-width: 1100px;
-    margin-left: auto;
-    margin-right: auto;
-}
-#title {
-    margin: 0;
-    padding: 0 1rem;
-    color: white;
-}
-
-.SearchForm {
-    display: flex;
-}
-.SearchBar {
-    height: 22px;
-    padding: 6px;
-    margin-right: 5px;
-    border-radius: 4px;
-    outline: none;
-}
-.SearchIcon {
-    width: 22px;
-    height: 22px;
-}
-
-@media (max-width: 600px) {
-    #title {
-        font-size: 1.3rem;
-        padding: 0 0;
-        padding-left: 10px;
-    }
-    .SearchBar {
-        width: 120px;
-        height: 22px;
-        margin-right: 0px;
-        border-radius: 4px;
-        outline: none;
-    }
-    .SearchIcon {
-        width: 22px;
-        height: 21px;
-    }
-}
-
-#header .auth-buttons {
-    height: 50%;
-    display: flex;
-}
-#header .auth-buttons button {
-    padding: 0 1rem;
-    background-color: rgb(150, 215, 245);
-    border-width: 1px;
-    margin-right: 5px;
-    border-radius: 3px;
-    font-size: 1.1 rem;
-}
-#header .auth-buttons button:hover {
-    background-color: rgb(211, 236, 248);
-}
-
-.MenuIconDiv {
-    display: flex;
-    height: 100%;
-    align-items: center;
 }
 
 .RegisterContainer,
@@ -241,483 +162,33 @@ input[type='submit'] {
     padding: 0.3rem 0.5rem;
 }
 
-/* Chat Main Display */
-
-.MainWindow {
-    display: flex;
-    height: 100%;
-    border: 1px solid black;
-}
-
-.FriendListTopBar {
-    display: flex;
-    width: 100%;
-    height: 30px;
-}
-.FilterFriendInput {
-    width: 100%;
-    font-size: 1rem;
-    padding-left: 7px;
-}
-.RequestListIconDiv {
-    border: 1px solid black;
-    position: relative;
-}
-.FriendRequestCount {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    border-radius: 50%;
-    height: 15px;
-    width: 15px;
-    line-height: 15px;
-    background-color: #ffd49d;
-    padding-left: 3px;
-}
-
-.UserIcon {
-    width: 28px;
-    height: 28px;
-}
-.FriendList {
-    width: 25%;
-    background-color: #cbd6e0;
-    overflow-y: auto;
-}
-.MobileShowFriendList {
-    width: 100%;
-}
-.MobileHideFriendList {
-    width: 0%;
-    height: 0;
-}
-
-.FriendBox {
-    display: flex;
-    align-items: center;
-    padding-top: 7px;
-    padding-bottom: 7px;
-    width: 100%;
-    margin: 0;
-    border: 0px;
-    border-bottom: 2px solid rgb(175, 6, 226);
-    /* border-top: 2px solid rgb(175, 6, 226); */
-    outline: none;
-    color: black;
-    overflow-x: hidden;
-}
-
-.FriendBox:hover {
-    background-color: #97c8f3;
-}
-
-.SelectedFriend {
-    background-color: #56cfe1;
-}
-
-.FriendBoxProfilePicDiv {
-    width: 90px;
-    margin-right: 5px;
-}
-.FriendProfilePic {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-.FriendBoxDetailsContainer {
-    width: 100%;
-    text-align: left;
-}
-.NameAndCountDiv {
-    display: flex;
-    justify-content: space-between;
-}
-.FriendBoxName {
-    font-size: 1.1rem;
-    overflow-x: hidden;
-    padding-bottom: 8px;
-}
-.UnseenMessageCount {
-    width: 22px;
-    height: 22px;
-    line-height: 20px;
-    border-radius: 50%;
-    text-align: center;
-    font-size: 15px;
-    border: 2px solid rgb(57, 57, 57);
-    color: rgb(49, 49, 49);
-    background-color: #aaddff;
-}
-.UnseenMessageCount0 {
-    visibility: hidden;
-}
-
-.FriendBoxLastMessage {
-    font-size: 0.8rem;
-    color: rgb(53, 53, 53);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.Typing {
-    font-size: 0.86rem;
-    color: #00b109;
-    font-weight: 550;
-}
-
-.ChatWindow {
-    position: relative;
-    width: 75%;
-    border-left: 1px solid rgb(199, 199, 199);
-    display: flex;
-    flex-flow: column;
-}
-
-.MobileShowChatWindow {
-    width: 100%;
-}
-.MobileHideChatWindow {
-    width: 0%;
-    height: 0;
-}
-
-.MobileReturnBackDiv {
-    position: absolute;
-    top: 0px;
-    height: 27px;
-    width: 100%;
-    background: rgba(225, 225, 225, 0.6);
-    opacity: 0.9;
-    color: black;
-    text-align: center;
-}
-
-#ChatWindowHeader {
-    flex: 0;
-    min-height: 45px;
-    display: flex;
-    align-items: center;
-    border-radius: 0 0 7px 7px;
-    background-color: #d8e3e6;
-    border-bottom: 1px solid black;
-}
-#ChatWindowHeaderPicDiv {
-    align-self: center;
-    margin-left: 20px;
-    margin-right: 15px;
-    width: 40px;
-    height: 40px;
-}
-
-#ChatWindowHeaderPic {
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-#AllChats {
-    flex: 1;
-    display: flex;
-    overflow-y: auto;
-    background-color: #edf6f9;
-    flex-direction: column;
-}
-
-#AllChats::-webkit-scrollbar {
-    width: 7px;
-}
-#AllChats::-webkit-scrollbar-thumb {
-    background-color: rgb(231, 230, 230);
-    border: 1px solid black;
-    border-radius: 10px;
-}
-
-.Message {
-    display: flex;
-    background-color: #265e80;
-    color: white;
-    min-width: 80px;
-    max-width: 60%;
-    margin: 5px;
-    padding: 8px;
-    border-radius: 6px;
-}
-
-.LeftMessage {
-    align-self: flex-start;
-    padding-left: 10px;
-    margin-left: 10px;
-    border-radius: 20px 25px 25px 0;
-    background-color: #acd8fc;
-    color: #000000;
-}
-.RightMessage {
-    align-self: flex-end;
-    padding-right: 10px;
-    margin-right: 10px;
-    border-radius: 25px 20px 0 25px;
-    background-color: #98ece7;
-    color: #000000;
-}
-.MessageTimePartDiv {
-    width: 50px;
-    position: relative;
-}
-
-.TimeDiv {
-    font-size: 10px;
-    position: absolute;
-    bottom: -5px;
-    right: 0px;
+.btnstyle {
     color: #494949;
-    opacity: 0.8;
-}
-.MessageContent {
-    width: auto;
-    overflow: hidden;
-    font-size: 1.1rem;
-    word-wrap: break-word;
-}
-
-@media (max-width: 750px) {
-    .MessageContent {
-        font-size: 1rem;
-    }
-}
-.FileContainer {
-    display: flex;
-    /* background-color: #e1ebee; */
-    min-width: 80px;
-    max-width: 60%;
-    margin: 5px;
-    padding: 8px;
-}
-.FileLeftMessage {
-    border-radius: 7px 7px 7px 0;
-}
-.FileRightMessage {
-    border-radius: 7px 7px 0 7px;
-}
-.FileDetail {
-    margin-left: 10px;
-    margin-right: 10px;
-}
-
-.FileTimeDiv {
-    font-size: 13px;
-    color: #494949;
-    opacity: 0.8;
-}
-.DownloadImgDiv {
-    cursor: pointer;
-}
-.FileModalContent {
-    display: flex;
-    align-items: center;
-    height: 50px;
-    position: relative;
-    padding-right: 40px;
-}
-.FileModalFileName {
-    margin-right: 10px;
-    max-width: 200px;
-    overflow: hidden;
-}
-.FileModalSendButton {
-    cursor: pointer;
-    height: 35px;
-}
-.FileModalCloseButton {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border: 0;
-}
-
-#ChatWindowInputFieldContainer {
-    flex: 0;
-    min-height: 40px;
-    display: flex;
-    width: 100%;
-}
-.fileIconDiv {
-    flex: 0;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-}
-.fileIcon {
-    width: 40px;
-    height: 40px;
-}
-.MessageForm {
-    flex: 1;
-    display: flex;
-    min-height: 40px;
-}
-.MessageInput {
-    flex: 1;
-    height: 40px;
-    font-size: 15px;
-    padding-left: 10px;
-    border: 0.5px solid black;
-    border-radius: 4px;
-    outline: none;
-}
-
-.SendButton {
-    flex: 0 80px;
     display: inline-block;
-    border-radius: 3px;
-    box-sizing: border-box;
-    text-decoration: none;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 300;
-    color: #000000;
-    background-color: #4eb5f1;
-    text-align: center;
-    transition: all 0.2s;
-    font-size: 16px;
-}
-.SendButton:hover {
-    background-color: #4095c6;
-}
-
-@media (max-width: 750px) {
-    .SendButton {
-        width: 20%;
-    }
-}
-
-#EmptyChatWindow {
-    width: 100%;
-    height: 100%;
-    background-color: #edf6f9;
-}
-
-.DefaultPage {
-    height: 100%;
-    min-height: 100%;
-    background-color: rgb(226, 245, 243);
-    /* position: relative;
-    z-index: 1; */
-}
-/* .DefaultPage::before {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: url(./assets/background.jpg) center center;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    opacity: 0.7;
-} */
-.DefaultPageTitle1 {
-    height: 40%;
-    display: flex;
-    font-family: 'Pattaya', sans-serif;
-    justify-content: center;
-    align-items: flex-end;
-    font-size: 3.5rem;
-    font-weight: bold;
-}
-.DefaultPageDesc {
-    display: flex;
-    justify-content: center;
-    font-size: 1.1rem;
-    color: rgb(84, 84, 84);
-}
-
-.DefaultPageGetStarted {
-    margin-top: 40px;
-    display: flex;
-    justify-content: center;
-}
-.DefaultPageGetStarted > button {
-    width: 140px;
-    height: 40px;
-    font-size: 1.15rem;
-    background-color: #56cfe1;
-    border: 0;
-    outline: none;
-}
-.DefaultPageTitle {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: #000000;
-    animation: text-shadow 1.4s ease-in-out infinite;
-    font-size: 2.7em;
-    font-weight: 900;
-    line-height: 1;
-}
-
-@keyframes text-shadow {
-    0% {
-        transform: translateY(0);
-    }
-    20% {
-        transform: translateY(0.2em);
-        text-shadow: 0 0.125em 0 #0c2ffb, 0 0.25em 0.125em #2cfcfd, 0.125em 0em 0.125em #fb203b, -0.125em -0.125em 0.125em #fefc4b;
-        color: #000000;
-    }
-    60% {
-        transform: translateY(-0.2em);
-        text-shadow: 0 -0.125em 0 #0c2ffb, 0 -0.25em 0.125em #2cfcfd, -0.125em 0em 0.125em #fb203b,
-            0.125em 0.125em 0.125em #fefc4b;
-    }
-    80% {
-        transform: translateY(0);
-    }
-}
-
-/* SearchResult Page */
-
-.SearchPageBackground {
-    width: 100%;
-    min-height: 100%;
     background-color: #ffffff;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 4px;
+    border: 2px solid #494949;
+    transition: all 0.4s ease 0s;
+}
+.btnstyle:hover {
+    color: #ffffff;
+    background: rgb(96, 169, 246);
+    background: linear-gradient(135deg, rgba(96, 169, 246, 1) 0%, rgba(42, 139, 242, 1) 100%);
+    transition: padding 0.4s ease 0s;
 }
 
-.SearchWindow {
-    max-width: 500px;
-    border: 2px solid;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.SearchResultSubTitle {
-    margin: 10px;
-    text-align: center;
-}
-.ResultLine {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 2px solid black;
-    border-top: 2px solid black;
-    align-items: center;
-    height: 40px;
-}
-.ResultName {
-    width: 40%;
-    text-align: center;
-}
 .SendFriendRequestDiv {
     width: 60%;
     text-align: center;
 }
+.SendFriendRequest {
+    height: 30px;
+    padding: 0px 5px;
+}
 .SendFriendRequest:hover {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0px 10px;
 }
 
 .AcceptItDiv {
@@ -725,60 +196,21 @@ input[type='submit'] {
     text-align: center;
 }
 .AcceptIt {
-    margin-right: 82px;
-    padding-left: 5px;
-    padding-right: 5px;
+    height: 30px;
+    padding: 0px 5px;
 }
 .AcceptIt:hover {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 0px 12px;
 }
 
-.btnstyle1 {
-    color: #494949 !important;
-    text-transform: uppercase;
-    text-decoration: none;
-    background: #ffffff;
-    padding: 4px;
-    border: 2px solid #494949 !important;
-    display: inline-block;
-    transition: all 0.4s ease 0s;
-}
-.btnstyle1:hover {
-    color: #ffffff !important;
-    background: #1f1f20;
-    border-color: #f6b93b !important;
-    transition: all 0.4s ease 0s;
-}
-
-.RequestPageBackground {
-    width: 100%;
-    min-height: 100%;
-    background-color: #ffffff;
-}
-.RequestWindow {
-    width: 100%;
-    max-width: 500px;
-    height: 100%;
-    border: 2px solid black;
-    margin-left: auto;
-    margin-right: auto;
-}
 .Requested {
     width: 60%;
     text-align: center;
     color: red;
 }
-.RequestPageAcceptBtn {
-    margin-right: 60px;
-}
-.RequestPageAcceptBtn:hover {
-    margin-right: 55px;
-}
+
 .AlreadyFriends {
     width: 60%;
     text-align: center;
-}
-.NoRequestPending {
-    text-align: center;
+    color: green;
 }

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
-import '../style.css';
-import { URL as URL1 } from './utils/Config';
-import LoadingSpinner from './utils/LoadingSpinner';
+import { URL as URL1 } from '../utils/Config';
+import LoadingSpinner from '../utils/LoadingSpinner';
 
 function UpdateProfile() {
     const [username, setUsername] = useState('');

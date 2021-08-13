@@ -1,0 +1,67 @@
+.LandingPage {
+    height: 100%;
+    min-height: 100%;
+    background-color: rgb(226, 245, 243);
+}
+
+/* 
+.LandingPage::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: url(./assets/background.jpg) center center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.7;
+} 
+*/
+
+.LandingPageTitle {
+    height: 40%;
+    display: flex;
+    font-family: 'Pattaya', sans-serif;
+    justify-content: center;
+    align-items: flex-end;
+    font-size: 3.5rem;
+    font-weight: bold;
+}
+.LandingPageDescription {
+    display: flex;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: rgb(84, 84, 84);
+    /* box-shadow: 10px 10px 25px 0px rgba(42, 139, 242, 0.1), 15px 15px 35px 0px rgba(33, 44, 56, 0.05),
+    10px 10px 50px 0px rgba(42, 139, 242, 0.1); */
+
+}
+
+.LandingPageGetStarted {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}
+.LandingPageGetStarted > button {
+    width: 140px;
+    height: 40px;
+    font-size: 1.15rem;
+    /* background-color: #56cfe1; */
+    border: 0;
+    border-radius: 5px;
+    outline: none;
+    background: rgb(96, 169, 246);
+    background: linear-gradient(135deg, rgba(96, 169, 246, 1) 0%, rgba(42, 139, 242, 1) 100%);
+    box-shadow: 10px 10px 25px 0px rgba(42, 139, 242, 0.1), 15px 15px 35px 0px rgba(33, 44, 56, 0.05),
+        10px 10px 50px 0px rgba(42, 139, 242, 0.1);
+}
+
+.LandingPageGetStarted > button:hover {
+    background: linear-gradient(90deg, rgb(64, 155, 253) 0%, rgba(42, 139, 242, 1) 100%);
+    box-shadow: 10px 10px 25px 0px rgba(42, 139, 242, 0.15), 15px 15px 35px 0px rgba(33, 44, 56, 0.1), -15px -15px 35px 0px rgba(33, 44, 56, 0.1);
+    /* transition: all 0.2s ease 0s; */
+}

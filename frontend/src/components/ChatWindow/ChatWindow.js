@@ -12,6 +12,7 @@ import UserContext from '../../context/UserContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useFullPageLoader from '../utils/useFullPageLoader';
+import './ChatWindow.css';
 
 /*
 first get the list of all friends and chats
@@ -103,9 +104,9 @@ function ChatWindow(props) {
                         { headers: { 'x-auth-token': token } }
                     );
                 } else {
-                    newUnseenMessageCount[index].count += 1;    
+                    newUnseenMessageCount[index].count += 1;
                 }
-                
+
                 setUnseenMessageCount([...newUnseenMessageCount]);
                 setChats([...newChats]);
             });

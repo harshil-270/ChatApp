@@ -1,0 +1,11 @@
+.HomePage {
+    height: calc(100% - 60px);
+    max-width: 1200px;
+    background-color: white;
+}
+
+.MainWindow {
+    display: flex;
+    height: 100%;
+    border: 1px solid black;
+}

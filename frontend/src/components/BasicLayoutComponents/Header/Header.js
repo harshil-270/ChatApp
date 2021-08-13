@@ -4,6 +4,7 @@ import SearchBar from './SearchBar';
 import HeaderButtons from './HeaderButtons';
 import UserContext from '../../../context/UserContext';
 import HamburgerIcon from '../../../assets/HamburgerIcon.jpg';
+import './Header.css'
 
 export default function Header() {
     const [windowSize, setWindowSize] = useState(window.innerWidth);

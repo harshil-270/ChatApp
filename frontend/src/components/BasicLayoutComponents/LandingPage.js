@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import './LandingPage.css';
 
 function LandingPage() {
     const history = useHistory();
@@ -7,10 +8,10 @@ function LandingPage() {
         history.push('/register');
     }
     return (
-        <div className='DefaultPage'>
-            <div className='DefaultPageTitle1'>ChatApp</div>
-            <div className='DefaultPageDesc'>Chat with your friends anytime from anywhere</div>
-            <div className='DefaultPageGetStarted'><button onClick={handleClick}>Get Started</button></div>
+        <div className='LandingPage'>
+            <div className='LandingPageTitle'>ChatApp</div>
+            <div className='LandingPageDescription'>Chat with your friends anytime from anywhere</div>
+            <div className='LandingPageGetStarted'><button onClick={handleClick}>Get Started</button></div>
         </div>
     );
 }

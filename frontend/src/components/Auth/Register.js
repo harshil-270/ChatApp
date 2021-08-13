@@ -3,6 +3,7 @@ import axios from 'axios';
 import defaultUserPic from '../../assets/defaultUserPic.png';
 import { URL as URL1 } from '../utils/Config';
 import LoadingSpinner from '../utils/LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 export default function Register() {
     const [user, setUser] = useState({
@@ -89,7 +90,10 @@ export default function Register() {
                     
                     <label htmlFor='ConfirmPassword'>Confirm Password*</label>
                     <input type='password' id='ConfirmPassword' className='inputField' onChange={onChange} />
-
+                    <div>
+                        Already have an account?{' '}
+                        <Link to='/login'>Login</Link>
+                    </div>
                     <div className='RegisterSubmitDiv'>
                         <input type='submit' className='submitbutton' value='Register' />
                         {isRegistering && <div><LoadingSpinner size='small' /></div>}

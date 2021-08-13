@@ -16,7 +16,7 @@ function FriendBox({ friendList, setFriendList, receiver, changeReceiver }) {
         if (friend.isTyping === true) TypingClass = 'Typing';
 
         return (
-            <button
+            <div
                 onClick={() => {
                     let newFriendList = friendList;
                     newFriendList[index].unseenMessageCount = 0;
@@ -43,7 +43,7 @@ function FriendBox({ friendList, setFriendList, receiver, changeReceiver }) {
                         {friend.isTyping ? 'typing...' : friend.lastMessage}
                     </div>
                 </div>
-            </button>
+            </div>
         );
     });
 }

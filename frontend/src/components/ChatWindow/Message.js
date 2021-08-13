@@ -11,7 +11,9 @@ function Message({ chat, chatLength, index, count }) {
     const User = useContext(UserContext);
     const focusMessageId = count === chatLength - index - 1 ? 'focusMessageId' : '';
     const MessageClass = chat.from === User.user.id ? 'RightMessage' : 'LeftMessage';
+    const TimeDivClass = chat.from === User.user.id ? 'TimeDivRight' : 'TimeDivLeft';
     const FileClass = chat.from === User.user.id ? 'FileRightMessage' : 'FileLeftMessage';
+    const FileTimeDivClass = chat.from === User.user.id ? 'FileTimeDivRight' : 'FileTimeDivLeft';
     const stylingForFirstMessage = index === 0 ? { marginTop: 'auto' } : {};
 
     const formatAMPM = (date) => {
@@ -64,19 +66,19 @@ function Message({ chat, chatLength, index, count }) {
                     {chat.body}
                 </div>
                 <div className="MessageTimePartDiv">
-                    <div className="TimeDiv">{formatAMPM(chat.time)}</div>
+                    <div className={`TimeDiv ${TimeDivClass}`}>{formatAMPM(chat.time)}</div>
                 </div>
             </div>
         );
     }
     return (
         <div className={`FileContainer ${MessageClass} ${FileClass}`} style={stylingForFirstMessage}>
-            <div>
+            <div className="FileIndicator">
                 <img src={fileIcon2} width="40px" height="40px" alt="file icon" />
             </div>
             <div className="FileDetail" id={focusMessageId}>
                 <div className="FileName">{chat.body}</div>
-                <div className="FileTimeDiv">{formatAMPM(chat.time)}</div>
+                <div className={`FileTimeDiv ${FileTimeDivClass}`}>{formatAMPM(chat.time)}</div>
             </div>
             <div className="DownloadImgDiv" onClick={(e) => downloadFile(e, index)}>
                 <img src={downloadIcon} width="40px" height="40px" alt="download icon" />

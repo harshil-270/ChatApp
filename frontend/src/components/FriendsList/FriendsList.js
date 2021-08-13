@@ -3,10 +3,12 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import { Link } from 'react-router-dom';
 import { URL } from '../utils/Config';
-import userIcon from '../../assets/userIcon.png';
-import LoadingSpinner from '../utils/LoadingSpinner';
-import UserContext from '../../context/UserContext';
 import FriendBox from './FriendBox';
+import UserContext from '../../context/UserContext';
+import LoadingSpinner from '../utils/LoadingSpinner';
+import userIcon from '../../assets/userIcon.png';
+import searchIcon from '../../assets/searchIcon2.png';
+import './FriendsList.css';
 
 // sidebar compoent to show all friends. user can chat with friend by clicking on that friend from friendlist.
 
@@ -19,6 +21,7 @@ function FriendsList(props) {
 
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [mobileFriendList, setMobileFriendList] = useState('');
 
     const User = useContext(UserContext);
     const friendsListRef = useRef(friendList);
@@ -129,9 +132,8 @@ function FriendsList(props) {
         };
     }, []);
 
-    const [mobileFriendList, setMobileFriendList] = useState('');
     useEffect(() => {
-        // if it is mobile view then change the classname for div element.
+        // If it is mobile view then change the classname for div element.
         if (window.innerWidth <= 750) {
             if (props.receiver === '') setMobileFriendList('MobileShowFriendList');
             else setMobileFriendList('MobileHideFriendList');
@@ -140,9 +142,13 @@ function FriendsList(props) {
         }
     }, [windowWidth, props.receiver]);
 
+
     return (
         <div className={`FriendList ${mobileFriendList}`}>
             <div className="FriendListTopBar">
+                <div className="SearchIconDiv">
+                    <img src={searchIcon}  className="SearchIcon"></img>
+                </div>
                 <input
                     type="text"
                     className="FilterFriendInput"

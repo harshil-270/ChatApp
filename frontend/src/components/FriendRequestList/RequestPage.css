@@ -1,0 +1,41 @@
+.RequestPageBackground {
+    width: 100%;
+    min-height: 100%;
+    background-color: #ffffff;
+}
+.RequestWindow {
+    width: 100%;
+    max-width: 500px;
+    height: 100%;
+    border: 1px solid black;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.RequestPageTitle {
+    margin: 10px;
+    text-align: center;
+}
+
+.RequestPageContent {
+    border: 0;
+}
+
+.ResultLine {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    align-items: center;
+    height: 40px;
+}
+.ResultName {
+    width: 40%;
+    text-align: center;
+}
+
+.NoRequestPending {
+    padding: 5px 0;
+    border-top: 1px solid #494949;;
+    text-align: center;
+}

@@ -1,0 +1,260 @@
+.ChatWindow {
+    position: relative;
+    width: 73%;
+    border-left: 1px solid rgb(199, 199, 199);
+    display: flex;
+    flex-flow: column;
+}
+
+.MobileShowChatWindow {
+    width: 100%;
+}
+.MobileHideChatWindow {
+    width: 0%;
+    height: 0;
+}
+
+.MobileReturnBackDiv {
+    position: absolute;
+    top: 0px;
+    height: 27px;
+    width: 100%;
+    background: rgba(225, 225, 225, 0.6);
+    opacity: 0.9;
+    color: black;
+    text-align: center;
+}
+
+#ChatWindowHeader {
+    flex: 0;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    background-color: #fafbff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+#ChatWindowHeaderPicDiv {
+    align-self: center;
+    margin-left: 20px;
+    margin-right: 15px;
+    width: 45px;
+    height: 45px;
+}
+
+#ChatWindowHeaderPic {
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#AllChats {
+    flex: 1;
+    display: flex;
+    overflow-y: auto;
+    background-color: #ffffff;
+    flex-direction: column;
+    scroll-behavior: smooth;
+}
+
+#AllChats::-webkit-scrollbar {
+    width: 7px;
+}
+#AllChats::-webkit-scrollbar-thumb {
+    background-color: rgb(231, 230, 230);
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+.Message {
+    display: flex;
+    background-color: #265e80;
+    color: white;
+    min-width: 80px;
+    max-width: 60%;
+    margin: 5px;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.LeftMessage {
+    align-self: flex-start;
+    padding-left: 10px;
+    margin-left: 15px;
+    border-radius: 0px 7px 7px 7px;
+    background: rgb(96, 169, 246);
+    background: linear-gradient(135deg, rgba(96, 169, 246, 1) 0%, rgba(42, 139, 242, 1) 100%);
+    color: #ffffff;
+    box-shadow: 10px 10px 25px 0px rgba(42, 139, 242, 0.1), 15px 15px 35px 0px rgba(33, 44, 56, 0.05),
+        10px 10px 50px 0px rgba(42, 139, 242, 0.1);
+}
+.RightMessage {
+    align-self: flex-end;
+    padding-right: 10px;
+    margin-right: 15px;
+    border-radius: 7px 7px 0px 7px;
+    background-color: #ffffff;
+    color: #707c97;
+    border: 1px solid rgba(112, 124, 151, 0.25);
+    -webkit-background-clip: padding-box; /* for Safari */
+    background-clip: padding-box; /* for IE9+, Firefox 4+, Opera, Chrome */
+    box-shadow: 10px    10px 25px 0px rgba(112, 124, 151, 0.05), 15px 15px 35px 0px rgba(112, 124, 151, 0.05);
+}
+.MessageTimePartDiv {
+    width: 50px;
+    position: relative;
+}
+
+.TimeDiv {
+    font-size: 10px;
+    position: absolute;
+    bottom: -5px;
+    right: 0px;
+    opacity: 0.8;
+}
+.TimeDivLeft {
+    color: rgba(255, 255, 255, 0.7);
+}
+.TimeDivRight {
+    color: #707c97;
+}
+
+.MessageContent {
+    font-size: 1.1rem;
+    width: auto;
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 750px) {
+    .MessageContent {
+        font-size: 1rem;
+    }
+}
+.FileContainer {
+    display: flex;
+    min-width: 80px;
+    max-width: calc(60%);
+    margin: 5px;
+    padding: 8px;
+}
+.FileLeftMessage {
+    margin-left: 15px;
+    border-radius: 0px 7px 7px 7px;
+}
+.FileRightMessage {
+    margin-right: 15px;
+    border-radius: 7px 7px 0 7px;
+}
+
+.FileIndicator {
+    min-width: 40px;
+}
+
+.FileDetail {
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.FileTimeDiv {
+    font-size: 13px;
+    opacity: 0.8;
+}
+.FileTimeDivLeft {
+    color: rgba(255, 255, 255, 0.7);
+}
+.FileTimeDivRight {
+    color: #707c97;
+}
+
+.DownloadImgDiv {
+    min-width: 40px;
+    cursor: pointer;
+}
+
+
+.FileModalContent {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    position: relative;
+    padding-right: 40px;
+}
+.FileModalFileName {
+    margin-right: 10px;
+    max-width: 200px;
+    overflow: hidden;
+}
+.FileModalSendButton {
+    cursor: pointer;
+    height: 35px;
+}
+.FileModalCloseButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+}
+
+#ChatWindowInputFieldContainer {
+    flex: 0;
+    width: 100%;
+    min-height: 60px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    border-top: 1px solid rgba(112, 124, 151, 0.15);
+}
+.fileIconDiv {
+    flex: 0;
+    width: 50px;
+    height: 48px;
+    cursor: pointer;
+}
+.fileIcon {
+    object-fit: none;
+    object-position: center;
+    width: 58px;
+    height: 58px;
+}
+.MessageForm {
+    flex: 1;
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+}
+.MessageInput {
+    flex: 1;
+    height: 40px;
+    font-size: 15px;
+    padding-left: 10px;
+    border: 0px solid black;
+    border-radius: 4px;
+    outline: none;
+}
+
+.SendButton {
+    flex: 0 60px;
+    text-align: center;
+    height: 52px;
+    margin-right: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.SendButton > img {
+    object-fit: none;
+    object-position: center;
+    width: 55px;
+    height: 55px;
+}
+
+#EmptyChatWindow {
+    width: 100%;
+    height: 100%;
+    background-color: #edf6f9;
+}
