@@ -51,9 +51,9 @@
 
 ### Features
 
--It has basic functionality like register/login, forget password, update profile.<br />
--Sending friend request to other users.<br />
--Send Image, Video and other types of file.<br />
+-It has basic functionality like Register/login, forgot password, update profile.<br />
+-Search other users, Send friend request to them.<br />
+-Send images and other media files.<br />
 -Typing Indicator, Server side message encryption<br />
 
 ### Built With
