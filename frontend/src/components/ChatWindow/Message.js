@@ -4,7 +4,7 @@ import UserContext from '../../context/UserContext';
 import { URL } from '../utils/Config';
 
 import downloadIcon from '../../assets/downloadIcon2.png';
-import downloadIconLight from '../../assets/downloadIconLight.png';
+import downloadIconLight from '../../assets/downloadIconWhite2.png';
 import fileIcon2 from '../../assets/fileIcon2.png';
 
 function Message({ chat, chatLength, index, count }) {
