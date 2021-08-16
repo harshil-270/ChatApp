@@ -4,6 +4,7 @@ import UserContext from '../../context/UserContext';
 import { URL } from '../utils/Config';
 
 import downloadIcon from '../../assets/downloadIcon2.png';
+import downloadIconLight from '../../assets/downloadIconLight.png';
 import fileIcon2 from '../../assets/fileIcon2.png';
 
 function Message({ chat, chatLength, index, count }) {
@@ -81,7 +82,7 @@ function Message({ chat, chatLength, index, count }) {
                 <div className={`FileTimeDiv ${FileTimeDivClass}`}>{formatAMPM(chat.time)}</div>
             </div>
             <div className="DownloadImgDiv" onClick={(e) => downloadFile(e, index)}>
-                <img src={downloadIcon} alt="download icon" />
+                <img src={chat.from === User.user.id ? downloadIcon : downloadIconLight} alt="download icon" />
             </div>
         </div>
     );
