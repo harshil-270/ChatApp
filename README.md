@@ -12,6 +12,8 @@
 
   <p align="center">
     <br />
+    <a href="https://chat-app-270.herokuapp.com/">View Project</a>
+    ·
     <a href="https://github.com/harshil-270/ChatApp/issues">Report Bug</a>
     ·
     <a href="https://github.com/harshil-270/ChatApp/issues">Request Feature</a>
