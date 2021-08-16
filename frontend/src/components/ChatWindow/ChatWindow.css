@@ -101,6 +101,14 @@
     background-clip: padding-box; /* for IE9+, Firefox 4+, Opera, Chrome */
     box-shadow: 10px    10px 25px 0px rgba(112, 124, 151, 0.05), 15px 15px 35px 0px rgba(112, 124, 151, 0.05);
 }
+
+.MessageContent {
+    width: auto;
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
 .MessageTimePartDiv {
     width: 50px;
     position: relative;
@@ -120,13 +128,6 @@
     color: #707c97;
 }
 
-.MessageContent {
-    font-size: 1.1rem;
-    width: auto;
-    overflow: hidden;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
 
 @media (max-width: 750px) {
     .MessageContent {
