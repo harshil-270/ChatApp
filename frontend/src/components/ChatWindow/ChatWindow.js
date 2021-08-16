@@ -255,13 +255,13 @@ function ChatWindow(props) {
         setIsFilePreviewOpened(false);
     };
     const sendFile = async () => {
+        // Show full screen loader.
+        showLoader();
+
         try {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('receiver', chats[selectedFriend].friendId);
-
-            // Show full screen loader.
-            showLoader();
 
             const token = localStorage.getItem('auth-token');
             const res = await axios.post(`${URL}/messages/uploadFile`, formData, {
@@ -270,8 +270,6 @@ function ChatWindow(props) {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
-            hideLoader();
 
             // Send the file to the friend.
             const room = chats[selectedFriend].friendshipId;
@@ -306,8 +304,14 @@ function ChatWindow(props) {
             closeFilePreview();
         } catch (error) {
             closeFilePreview();
-            toast('Unable to send file. Looks like some server issue.');
+            if (error.response && error.response.data && error.response.data.includes('File too large')) {
+                toast('Unable to send file. File size should be less than 5MB');
+            } else {
+                toast('Unable to send file. Looks like some server issue.');
+            }
         }
+        
+        hideLoader();
     };
 
     return (

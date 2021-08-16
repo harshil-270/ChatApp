@@ -138,7 +138,7 @@
     min-width: 80px;
     max-width: calc(60%);
     margin: 5px;
-    padding: 8px;
+    align-items: center;
 }
 .FileLeftMessage {
     margin-left: 15px;
@@ -150,7 +150,13 @@
 }
 
 .FileIndicator {
-    min-width: 40px;
+    width: 45px;
+    height: 45px;
+    padding-bottom: 2px;
+}
+.FileIndicator > img {
+    width: 45px; 
+    height: 45px;
 }
 
 .FileDetail {
@@ -159,6 +165,7 @@
     overflow-wrap: break-word;
     margin-left: 10px;
     margin-right: 10px;
+    padding: 8px 0px;
 }
 
 .FileTimeDiv {
@@ -173,10 +180,15 @@
 }
 
 .DownloadImgDiv {
-    min-width: 40px;
+    width: 50px;
+    height: 55px;
     cursor: pointer;
 }
 
+.DownloadImgDiv > img {
+    width: 52px; 
+    height: 52px;
+}
 
 .FileModalContent {
     display: flex;
@@ -210,18 +222,20 @@
     align-items: center;
     border-top: 1px solid rgba(112, 124, 151, 0.15);
 }
+
 .fileIconDiv {
     flex: 0;
-    width: 50px;
-    height: 48px;
+    width: 55px;
+    height: 55px;
     cursor: pointer;
 }
 .fileIcon {
-    object-fit: none;
-    object-position: center;
-    width: 58px;
-    height: 58px;
+    /* object-fit: none;
+    object-position: center; */
+    width: 55px;
+    height: 55px;
 }
+
 .MessageForm {
     flex: 1;
     display: flex;
@@ -239,16 +253,16 @@
 }
 
 .SendButton {
-    flex: 0 60px;
+    flex: 0 55px;
     text-align: center;
-    height: 52px;
+    height: 57px;
     margin-right: 10px;
     transition: all 0.2s;
     cursor: pointer;
 }
 .SendButton > img {
-    object-fit: none;
-    object-position: center;
+    /* object-fit: none;
+    object-position: center; */
     width: 55px;
     height: 55px;
 }

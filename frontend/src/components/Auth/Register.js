@@ -31,7 +31,7 @@ export default function Register() {
     const onSubmit = async (e) => {
         e.preventDefault();
         if (isImageUploaded === false) {
-            setError('Please upload profile image');
+            setError('Please upload profile picture');
             return;
         }
 
@@ -49,8 +49,8 @@ export default function Register() {
             setError('');
             setIsRegistering(false);
         } catch (error) {
-            if (error.response.data.err) setError(error.response.data.err);
-            else setError('Something went wrong please try again');
+            if (error.response && error.response.data && error.response.data.err) setError(error.response.data.err);
+            else setError('Something went wrong. Please try again');
             setIsRegistering(false);
         }
     };
@@ -79,16 +79,16 @@ export default function Register() {
                         <input type='file' className='UploadPicBtn' onChange={(e) => uploadImage(e)} />
                     </div>
 
-                    <label htmlFor='Username'>Username*</label>
+                    <label htmlFor='Username'>Username<span style={{color: 'red'}}>*</span></label>
                     <input type='text' id='Username' className='inputField' onChange={onChange} />
                     
-                    <label htmlFor='Email'>Email*</label>
+                    <label htmlFor='Email'>Email<span style={{color: 'red'}}>*</span></label>
                     <input type='email' id='Email' className='inputField' onChange={onChange} />
                     
-                    <label htmlFor='Password'>Password*</label>
+                    <label htmlFor='Password'>Password<span style={{color: 'red'}}>*</span></label>
                     <input type='password' id='Password' className='inputField' onChange={onChange} />
                     
-                    <label htmlFor='ConfirmPassword'>Confirm Password*</label>
+                    <label htmlFor='ConfirmPassword'>Confirm Password<span style={{color: 'red'}}>*</span></label>
                     <input type='password' id='ConfirmPassword' className='inputField' onChange={onChange} />
                     <div>
                         Already have an account?{' '}

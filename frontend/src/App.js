@@ -60,7 +60,7 @@ export default function App() {
             <BrowserRouter>
                 <UserContext.Provider value={{ user, setUser }}>
                     <Header />
-                    <div className="AppContainer">
+                    <div className="AppBodyContainer">
                         {isDataFetched ? (
                             <Switch>
                                 <Route exact path="/" component={Home} />

@@ -63,5 +63,4 @@
 .LandingPageGetStarted > button:hover {
     background: linear-gradient(90deg, rgb(64, 155, 253) 0%, rgba(42, 139, 242, 1) 100%);
     box-shadow: 10px 10px 25px 0px rgba(42, 139, 242, 0.15), 15px 15px 35px 0px rgba(33, 44, 56, 0.1), -15px -15px 35px 0px rgba(33, 44, 56, 0.1);
-    /* transition: all 0.2s ease 0s; */
 }

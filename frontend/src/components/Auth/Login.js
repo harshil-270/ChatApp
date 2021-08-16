@@ -17,7 +17,7 @@ export default function Login() {
     const onSubmit = async (e) => {
         e.preventDefault();
         setIsLogining(true);
-
+        setError('');
         try {
             const res = await axios.post(`${URL}/users/login`, { email: email, password: password });
             Context.setUser({
@@ -46,7 +46,7 @@ export default function Login() {
                     <input type='password' id='Password' className='inputField' onChange={(e) => setPassword(e.target.value)} />
 
                     <Link to='/reset'>
-                        <div className='ForgetPassword'>Forget password?</div>
+                        <div className='ForgetPassword'>Forgot password?</div>
                     </Link>
                     <div className='LoginSubmitDiv'>
                         <input type='submit' className='submitbutton' value='Login' />

@@ -1,6 +1,6 @@
 import React from 'react';
-import fileIcon from '../../assets/fileIcon3.png';
-import sendMessageIcon from '../../assets/sendMessageIcon2.png';
+import fileIcon from '../../assets/fileIcon4.png';
+import sendMessageIcon from '../../assets/sendMessageIcon1.png';
 
 function ChatWindowFooter({ inputFile, handleSelectedFile, onInputChange, message, sendMessage }) {
     return (
@@ -25,7 +25,7 @@ function ChatWindowFooter({ inputFile, handleSelectedFile, onInputChange, messag
                     onChange={onInputChange}
                     autoComplete="off"
                 />
-                <div className="SendButton"x onClick={sendMessage}>
+                <div className="SendButton" onClick={sendMessage}>
                     <img src={sendMessageIcon}></img>
                 </div>
             </form>

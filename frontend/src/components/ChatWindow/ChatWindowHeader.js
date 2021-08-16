@@ -13,7 +13,7 @@ function ChatWindowHeader({ friend, windowWidth, setSelectFriend, changeReceiver
         <div id="ChatWindowHeader">
             {windowWidth <= breakpoint && (
                 <div onClick={returnButtonHandler}>
-                    <img src={returnIcon} alt="return button" height="40px" width="40px"></img>{' '}
+                    <img src={returnIcon} alt="return button" height="45px" width="45px"></img>{' '}
                 </div>
             )}
             <div id="ChatWindowHeaderPicDiv">

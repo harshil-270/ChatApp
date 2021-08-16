@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
-import UserContext from '../../context/UserContext';
-import downloadIcon from '../../assets/downloadIcon.png';
+import { useContext } from 'react';
 import axios from 'axios';
-
-import fileIcon2 from '../../assets/fileIcon2.png';
+import UserContext from '../../context/UserContext';
 import { URL } from '../utils/Config';
+
+import downloadIcon from '../../assets/downloadIcon2.png';
+import fileIcon2 from '../../assets/fileIcon2.png';
 
 function Message({ chat, chatLength, index, count }) {
     // console.log(index, count);
@@ -74,14 +74,14 @@ function Message({ chat, chatLength, index, count }) {
     return (
         <div className={`FileContainer ${MessageClass} ${FileClass}`} style={stylingForFirstMessage}>
             <div className="FileIndicator">
-                <img src={fileIcon2} width="40px" height="40px" alt="file icon" />
+                <img src={fileIcon2} alt="file icon" />
             </div>
             <div className="FileDetail" id={focusMessageId}>
                 <div className="FileName">{chat.body}</div>
                 <div className={`FileTimeDiv ${FileTimeDivClass}`}>{formatAMPM(chat.time)}</div>
             </div>
             <div className="DownloadImgDiv" onClick={(e) => downloadFile(e, index)}>
-                <img src={downloadIcon} width="40px" height="40px" alt="download icon" />
+                <img src={downloadIcon} alt="download icon" />
             </div>
         </div>
     );

@@ -185,7 +185,7 @@ Router.post('/resetPassword', async (req, res) => {
         let token = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         for (var i = 0; i < 64; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
+            token += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         user.resetToken = token;
         user.expiryTime = Date.now() + 600000; // expires in 10 min

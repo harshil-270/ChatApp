@@ -15,7 +15,7 @@ function ResetPassword() {
         try {
             await axios.post(`${URL}/users/resetPassword`, { email: email });
             setMessage(
-                'We have sent you a mail for reseting password. Please check your mail. Make sure to check your spam folder'
+                'We have sent you a mail for reseting password. Make sure to check your spam folder.'
             );
             setError('');
             setIsReseting(false);

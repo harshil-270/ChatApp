@@ -27,10 +27,13 @@ body {
 }
 .App {
     height: 100%;
+    display: flex;
+    flex-flow: column;
 }
-.AppContainer {
-    height: 100%;
-    min-height: 100%;
+.AppBodyContainer {
+    flex: 1 1 auto;
+    height: calc(100% - 60px);
+    width: 100%;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -39,7 +42,6 @@ body {
 
 button,
 input[type='submit'] {
-    border: node;
     background: none;
     color: unset;
     cursor: pointer;
@@ -72,16 +74,22 @@ input[type='submit'] {
     max-width: 60px;
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     z-index: 1000;
     position: absolute;
 }
+
+
+
+/* Login and Register CSS */
 
 .RegisterContainer,
 .LoginContainer {
     width: 100%;
     background-color: white;
+    height: 100%;
     min-height: 100%;
+    overflow-y: auto;
 }
 .RegisterPage,
 .LoginPage {
@@ -103,19 +111,19 @@ input[type='submit'] {
 
 .error {
     text-align: center;
-    color: red;
+    padding: 10px;
+    margin: 10px 0px;
+    border-radius: 5px;
+    color: black;
+    background-color: rgba(255, 0, 0, 0.2);
 }
 .OkMessage {
     text-align: center;
-    color: green;
-    font-weight: bold;
-}
-
-.form input {
-    display: block;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    outline: none;
+    padding: 10px;
+    margin: 10px 0px;
+    border-radius: 5px;
+    color: black;
+    background-color: rgba(0, 255, 0, 0.3);
 }
 
 .UploadPicContainer {
@@ -135,13 +143,27 @@ input[type='submit'] {
     margin-right: auto;
 }
 
+.form label {
+    font-size: 14px;
+}
+
+.form input {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    outline: none;
+}
+
 .inputField {
     width: 100%;
-    font-size: 1.1 rem;
+    height: 35px;
+    font-size: 15px;
     padding: 0.3rem;
     border-radius: 3px;
-    border: 2px solid rgb(178, 188, 245);
-    background-color: rgb(230, 241, 245);
+    border: 1px solid #767676;
+}
+.inputField:focus {
+    border: 1px solid #543FD3;
 }
 
 .ForgetPassword {
@@ -161,6 +183,8 @@ input[type='submit'] {
     border: 2px solid rgb(154, 136, 255);
     padding: 0.3rem 0.5rem;
 }
+
+/* Common CSS */
 
 .btnstyle {
     color: #494949;
