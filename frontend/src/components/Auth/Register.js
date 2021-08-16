@@ -30,13 +30,14 @@ export default function Register() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        setIsRegistering(true);
+        setError('');
         if (isImageUploaded === false) {
+            setIsRegistering(false);
             setError('Please upload profile picture');
             return;
         }
 
-        setIsRegistering(true);
-    
         const formData = new FormData();
         formData.append('username', user.Username);
         formData.append('email', user.Email);
@@ -45,14 +46,14 @@ export default function Register() {
         formData.append('profilePic', user.profilePicDetails);
         try {
             await axios.post(`${URL1}/users/register`, formData);
-            setSuccessMessage('We have sent you confimation mail. Please confirm your Email Id. Make sure to check spam folder');
+            setSuccessMessage('We have sent you confirmation mail. Please confirm your Email Id. Make sure to check spam folder');
             setError('');
-            setIsRegistering(false);
         } catch (error) {
             if (error.response && error.response.data && error.response.data.err) setError(error.response.data.err);
             else setError('Something went wrong. Please try again');
-            setIsRegistering(false);
+            setSuccessMessage('');
         }
+        setIsRegistering(false);
     };
 
     const uploadImage = (e) => {
