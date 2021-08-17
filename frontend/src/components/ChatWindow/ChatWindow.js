@@ -40,6 +40,7 @@ function ChatWindow(props) {
     let timeout = undefined;
 
     const User = useContext(UserContext);
+    const inputRef = useRef(null);
     const chatsRef = useRef(chats);
     const selectedFriendRef = useRef(selectedFriend);
     const unseenMessageCountRef = useRef(unseenMessageCount);
@@ -148,6 +149,9 @@ function ChatWindow(props) {
             { unseenMessageCount: 0, receiver: props.receiver },
             { headers: { 'x-auth-token': token } }
         );
+
+        // Focus on input text field.
+        if (inputRef && inputRef.current) inputRef.current.focus();
 
         setTimeout(() => {
             // Scroll to the top of unseen message.
@@ -330,6 +334,7 @@ function ChatWindow(props) {
                         unseenMessageCount={unseenMessageCount}
                     />
                     <ChatWindowFooter
+                        inputRef={inputRef}
                         inputFile={inputFile}
                         handleSelectedFile={handleSelectedFile}
                         onInputChange={onInputChange}
