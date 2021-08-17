@@ -2,15 +2,18 @@ const Router = require('express').Router();
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const auth = require('../auth/auth');
+const wrapedSendMail = require('../utils/sendMail');
 const multer = require('multer');
-const transporter = require('../auth/emailAuth');
 const bcrypt = require('bcryptjs');
 const CryptoJS = require('crypto-js');
 
-const mongoose = require('mongoose');
 const User = require('../models/users');
 const Friend = require('../models/friends');
 const Message = require('../models/messages');
+
+const {promisify} = require('util');
+const unlinkAsync = promisify(fs.unlink)
+
 
 require('dotenv').config();
 
@@ -37,7 +40,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 1024 * 1024 * 5, // profile picture size limit 5mb
+        fileSize: 1024 * 1024 * 5, // Profile picture size limit 5mb
     },
     fileFilter: fileFilter,
 });
@@ -46,52 +49,59 @@ const encryptMessage = (message) => {
     let encryptedMessage = CryptoJS.AES.encrypt(message, process.env.MESSAGE_KEY).toString();
     return encryptedMessage;
 };
+
 const decryptMessage = (message) => {
     let decryptedMessage = CryptoJS.AES.decrypt(message, process.env.MESSAGE_KEY).toString(CryptoJS.enc.Utf8);
     return decryptedMessage;
 };
 
 Router.post('/register', upload.single('profilePic'), async (req, res) => {
-    // validate the user data
-    if (!req.body.username || !req.body.email || !req.body.password || !req.body.confirmPassword) {
-        return res.status(400).json({ err: 'Please fill all the fields' });
-    }
-    if (req.body.password.length < 5) {
-        return res.status(400).json({ err: 'Password length must be greater than 5' });
-    }
-    if (req.body.password !== req.body.confirmPassword) {
-        return res.status(400).json({ err: 'Password and confirm password must be same' });
-    }
-
     try {
-        // first check if user with same username or email already exits or not.
+        // Validate the user data.
+        if (!req.body.username || !req.body.email || !req.body.password || !req.body.confirmPassword) {
+            // Delete profile picture which is stored in "uploads" folder.
+            await unlinkAsync(req.file.path);
+            return res.status(400).json({ err: 'Please fill all the fields' });
+        }
+        if (req.body.password.length < 5) {
+            await unlinkAsync(req.file.path);
+            return res.status(400).json({ err: 'Password length must be greater than 5' });
+        }
+        if (req.body.password !== req.body.confirmPassword) {
+            await unlinkAsync(req.file.path);
+            return res.status(400).json({ err: 'Password and confirm password must be same' });
+        }
+
+        // First check if user with same username or email already exits or not.
         let user = await User.findOne({
             $or: [{ email: req.body.email }, { username: req.body.username }],
         });
         if (user) {
             if (user.confirmed) {
+                await unlinkAsync(req.file.path);
                 if (user.username === req.body.username) {
-                    return res.status(400).json({ err: 'Username is already taken.' });
+                    return res.status(400).json({ err: 'Username is already taken. Please choose another username' });
                 } else {
                     return res.status(400).json({ err: 'EmailID is already registered' });
                 }
             } else {
-                // if difference between current time and account creation time is greater than 1 day(24*60 minutes). then delete it.
+                // If difference between current time and account creation time is greater than 60 min. then delete it.
                 let diffInMin = (Date.now() - user.createdAt.getTime()) / (1000 * 60);
-                if (diffInMin <= 24 * 60) {
-                    // if username is already taken but email id is not confirmed then
-                    // if account was created less than 1 day ago then some other user cant take this username.
+                if (diffInMin <= 60) {
+                    // If username is already taken but email id is not confirmed and
+                    // If account was created less than 60 min ago then some other user cant take this username.
                     if (user.username === req.body.username) {
+                        await unlinkAsync(req.file.path);
                         return res.status(400).json({
-                            error: 'Username is already taken. Please choose another username',
+                            err: 'Username is already taken. Please choose another username',
                         });
                     }
                 }
-
                 await User.findByIdAndDelete(user._id);
             }
         }
-        // store hashed password in database
+
+        // Store hashed password in database.
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
         user = new User({
@@ -104,22 +114,24 @@ Router.post('/register', upload.single('profilePic'), async (req, res) => {
             },
         });
         user = await user.save();
+        await unlinkAsync(req.file.path);
 
-        // sedn the email verification mail.
-        jwt.sign({ user: user._id }, JWT_SECRET, { expiresIn: '1d' }, (err, emailToken) => {
-            const url = `${SERVER_URL}/users/confirmation/${emailToken}`;
-            transporter
-                .sendMail({
-                    to: user.email,
-                    subject: 'Account confirmation (ChatApp)',
-                    html: `Please click on this <a href="${url}">link</a> to confirm your email`,
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-            res.json({ msg: 'User registered' });
-        });
+        // Send the email verification mail.
+        const emailToken = jwt.sign({ user: user._id }, JWT_SECRET, { expiresIn: '1h' });
+        const url = `${SERVER_URL}/users/confirmation/${emailToken}`;
+        const mailOptions = {
+            to: user.email,
+            subject: 'Account confirmation (ChatApp)',
+            html: `Please click on this <a href="${url}">link</a> to confirm your email`,
+        }
+        const result = await wrapedSendMail(mailOptions);
+        if (result.success) {
+            return res.status(200).json({ msg: 'User registered' });
+        } else {
+            return res.status(500).json({ err: 'Server error. Not able to send confirmation mail. Please try again after some time'});
+        }
     } catch (error) {
+        await unlinkAsync(req.file.path);
         res.status(500).json({ err: 'Server error' });
     }
 });
@@ -129,58 +141,58 @@ Router.get('/confirmation/:token', async (req, res) => {
         // verify email verification token.
         const data = jwt.verify(req.params.token, JWT_SECRET);
         const id = data.user;
-        let user = await User.findById(id);
-        if (!user) {
-            return res.status(400).json({ err: 'Wrong token' });
-        }
-        user.confirmed = true;
-        await user.save();
-        return res.redirect(`${CLIENT_URL}/login`);
+        const user = await User.findByIdAndUpdate(id, {
+            $set: {
+                confirmed: true
+            }
+        });
+        return res.redirect(`${CLIENT_URL}/login?emailConfirm=true`);
     } catch (error) {
-        res.status(500).json({ err: 'server error' });
+        return res.status(500).json({ err: 'server error' });
     }
 });
 
 Router.post('/login', async (req, res) => {
-    if (!req.body.email || !req.body.password) {
-        return res.status(400).json({ err: 'Please fill all the fields' });
-    }
     try {
-        let user = await User.findOne({ email: req.body.email });
-        if (user) {
-            // check if user has verified email address or not.
-            if (!user.confirmed) {
-                return res.status(400).json({ err: 'Please Confirm Your email to login' });
-            }
-            // compare hashed password.
-            const isSame = await bcrypt.compare(req.body.password, user.password);
-            if (isSame) {
-                // generate auth token which expires in 1day.
-                const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-                return res.json({
-                    token,
-                    id: user._id,
-                    username: user.username,
-                });
-            } else {
-                return res.status(400).json({ err: 'Wrong Email ID or Password' });
-            }
-        } else {
-            return res.status(400).json({ err: 'Account does not exist. Please register first' });
+        if (!req.body.email || !req.body.password) {
+            return res.status(400).json({ err: 'Please fill all the fields.' });
         }
+        let user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(400).json({ err: 'Account does not exist. Please register first.' });
+        }
+        
+        // Check if user has verified email address or not.
+        if (!user.confirmed) {
+            return res.status(400).json({ err: 'Please Confirm Your email to login.' });
+        }
+
+        // Compare hashed password.
+        const isSame = await bcrypt.compare(req.body.password, user.password);
+        if (!isSame) {
+            return res.status(400).json({ err: 'Wrong Email ID or Password.' });
+        }
+
+        // Generate auth token which expires in 1day.
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        return res.status(200).json({
+            token,
+            id: user._id,
+            username: user.username,
+        });
     } catch (error) {
-        console.log(error);
         return res.status(500).json({ err: 'server error' });
     }
 });
 
 Router.post('/resetPassword', async (req, res) => {
     try {
-        // check if user exits or not.
+        // Check if user exits or not.
         let user = await User.findOne({ email: req.body.email });
         if (!user) return res.status(404).json({ err: 'Email Id is not registered' });
+        if (!user.confirmed) return res.status(400).json({ err: 'Please confirm your email id first.' });
 
-        // generate random token for reseting password.
+        // Generate random token for reseting password.
         // const token = crypto.randomBytes(32).toString('hex');
         let token = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -191,23 +203,28 @@ Router.post('/resetPassword', async (req, res) => {
         user.expiryTime = Date.now() + 600000; // expires in 10 min
         user = await user.save();
 
-        // send email to user with reset token
+        // Send email to user with reset token.
         const url = `${CLIENT_URL}/reset/${token}`;
-        transporter.sendMail({
+        const mailOptions = {
             to: user.email,
             subject: 'Password reset (ChatApp)',
             html: `
             <p>You have requested for password reset</p>
             <p><b>Please click on this <a href="${url}">link</a> to reset your password<b></p>`,
-        });
-        res.json({ msg: 'Check your Email' });
+        }
+        const result = await wrapedSendMail(mailOptions);
+        if (result.success) {
+            return res.status(200).json({ msg: 'Mail for reseting your password is sent successfully. Check your mails.' });
+        } else {
+            return res.status(500).json({ err: 'Server error. Not able to send mail. Please try again after some time.'});
+        }
     } catch (error) {
         return res.status(500).json({ err: 'server error' });
     }
 });
 
 Router.post('/newPassword', async (req, res) => {
-    // validate password and confirmPassword.
+    // Validate password and confirmPassword.
     if (req.body.password.length < 5) {
         return res.status(400).json({ err: 'Password length must be greater than 5' });
     }
@@ -215,12 +232,12 @@ Router.post('/newPassword', async (req, res) => {
         return res.status(400).json({ err: 'Password and confirm password must be same' });
     }
     try {
-        // find user and make sure reset token is not expired.
+        // Find user and make sure reset token is not expired.
         let user = await User.findOne({
             resetToken: req.body.resetToken,
             expiryTime: { $gt: Date.now() },
         });
-        if (!user) return res.status(400).json({ err: 'Your session has expired. Please try again' });
+        if (!user) return res.status(400).json({ err: 'Your session has expired. Please try again.' });
 
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -276,7 +293,7 @@ Router.post('/updateProfilePic', auth, upload.single('profilePic'), async (req, 
 Router.post('/updateUsername', auth, async (req, res) => {
     try {
         if (!req.body.username) {
-            return res.status(400).json({ err: `Username can't be empty` });
+            return res.status(400).json({ err: `Username can't be empty.` });
         }
         let user = await User.findById(req.user);
         if (user.username === req.body.username) {
@@ -288,16 +305,16 @@ Router.post('/updateUsername', auth, async (req, res) => {
                 username: req.body.username,
             });
             if (alreadyExist) {
-                return res.status(400).json({ err: 'Username is already taken' });
+                return res.status(400).json({ err: 'Username is already taken.' });
             }
             user.username = req.body.username;
             await user.save();
             res.json({ msg: 'success' });
         } else {
-            res.status(400).json({ err: 'No User found' });
+            res.status(400).json({ err: 'No User found.' });
         }
     } catch (err) {
-        res.status(400).json({ err: 'Error Updating Profile' });
+        res.status(400).json({ err: 'Error Updating Profile.' });
     }
 });
 
@@ -319,14 +336,13 @@ Router.post('/isTokenValid', auth, async (req, res) => {
 
 Router.post('/sendFriendRequest', auth, async (req, res) => {
     try {
-        // find the 1st user
+        // Find the 1st user who is trying to send friend request to 2nd user.
         const user1 = await User.findById(req.user);
-        if (!user1) return res.status(404).json({ err: 'Cant find the user' });
+        if (!user1) return res.status(404).json({ err: 'Cant find the user.' });
         const user2 = await User.findById(req.body.id);
-        if (!user2)
-            return res.status(404).json({
-                err: 'Cant find the friend, to whom user is trying to send request.',
-            });
+        if (!user2) {
+            return res.status(404).json({ err: 'Cant find the friend, to whom user is trying to send request.'});
+        }
 
         let friend = await Friend.findOne({
             $or: [
@@ -344,6 +360,15 @@ Router.post('/sendFriendRequest', auth, async (req, res) => {
             status: 'pending',
         });
         await friend.save();
+        
+        // Send the mail to 2nd user about friend request.
+        const url = `${CLIENT_URL}/`;
+        const mailOptions = {
+            to: user2.email,
+            subject: `${user1.username} has sent you a friend request`,
+            html: `<a href="${url}"><h2>ChatApp</h2></a> <br/> ${user1.username} has sent you a friend request. Confirm the friend request to start chatting.`,
+        }
+        const result = await wrapedSendMail(mailOptions);
 
         return res.status(200).json({ msg: 'Friend Request sended.' });
     } catch (error) {
@@ -355,14 +380,14 @@ Router.post('/acceptFriendRequest', auth, async (req, res) => {
     try {
         // User who is accepting request keep it in "user2" varaible. just to avoid confusion.
         const user1 = await User.findById(req.body.id);
-        if (!user1) return res.status(404).json({ err: 'Friend not found' });
+        if (!user1) return res.status(404).json({ err: 'Friend not found.' });
         const user2 = await User.findById(req.user);
 
         let friend = await Friend.findOne({
             $and: [{ user1: user1._id }, { user2: user2._id }],
         });
         if (!friend) {
-            return res.status(400).json({ err: 'Friend request not found' });
+            return res.status(400).json({ err: 'Friend request not found.' });
         }
 
         friend.status = 'accepted';
@@ -370,15 +395,13 @@ Router.post('/acceptFriendRequest', auth, async (req, res) => {
 
         // Send the mail to user "who sent the friend request".
         const url = `${CLIENT_URL}/`;
-        transporter
-            .sendMail({
-                to: user1.email,
-                subject: `${user2.username} has confirmed your friend request`,
-                html: `<h2>ChatApp</h2><br/> ${user2.username} has confirmed your friend request. Click on this  <a href="${url}">link</a> to start chatting with friends`,
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        const mailOptions = {
+            to: user1.email,
+            subject: `${user2.username} has confirmed your friend request`,
+            html: `<h2>ChatApp</h2><br/> ${user2.username} has confirmed your friend request. Click on this <a href="${url}">link</a> to start chatting with your friends.`,
+        }
+        const result = await wrapedSendMail(mailOptions);
+
         return res.status(200).json({ msg: 'Friend Request Accepted' });
     } catch (error) {
         return res.status(500).json({ err: 'server error' });
@@ -417,7 +440,7 @@ Router.get('/getFriends', auth, async (req, res) => {
         let requestCount = 0;
 
         for (let i = 0; i < friends.length; i++) {
-            // count the number of pending request.
+            // Count the number of pending request.
             if (friends[i].status === 'pending') {
                 if (friends[i].user2._id == req.user) {
                     requestCount++;
