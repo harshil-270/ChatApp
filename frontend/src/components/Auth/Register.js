@@ -46,7 +46,7 @@ export default function Register() {
         formData.append('profilePic', user.profilePicDetails);
         try {
             await axios.post(`${URL1}/users/register`, formData);
-            setSuccessMessage('We have sent you confirmation mail. Please confirm your Email Id. Make sure to check spam folder');
+            setSuccessMessage('We have sent you confirmation mail. Please confirm your Email Id. Make sure to check spam folder.');
             setError('');
         } catch (error) {
             if (error.response && error.response.data && error.response.data.err) setError(error.response.data.err);
@@ -68,11 +68,11 @@ export default function Register() {
     return (
         <div className='RegisterContainer'>
             <div className='RegisterPage'>
-                <h2 className='pageTitle'>Register</h2>
                 
                 {successMessage !== '' && <div className='OkMessage'>{successMessage}</div> }
                 {error !== '' && <div className='error'>{error}</div>}
                 
+                <h2 className='pageTitle'>Register</h2>
                 <form className='form' onSubmit={onSubmit}>
                     
                     <div className='UploadPicContainer'>
