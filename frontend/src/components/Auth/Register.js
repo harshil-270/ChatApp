@@ -77,7 +77,7 @@ export default function Register() {
                     
                     <div className='UploadPicContainer'>
                         <img src={user.profilePic} className='ProfilePicUpload' alt='Upload Profile Pic'></img>
-                        <input type='file' className='UploadPicBtn' onChange={(e) => uploadImage(e)} />
+                        <input type='file' accept=".jpg,.jpeg,.png" className='UploadPicBtn' onChange={(e) => uploadImage(e)} />
                     </div>
 
                     <label htmlFor='Username'>Username<span style={{color: 'red'}}>*</span></label>
