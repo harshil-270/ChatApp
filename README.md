@@ -49,7 +49,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](https://raw.githubusercontent.com/harshil-270/ChatApp/main/images/screenshot.PNG)
 
 ### Features
 
@@ -131,7 +131,7 @@ Contributions are what make the open source community such an amazing place to b
 <!-- CONTACT -->
 ## Contact
 
-Harshil Tagadiya - [@Harshil Tagadiya](https://www.linkedin.com/in/harshil-tagadiya-442518190/) - harshiltagadiya@gmail.com
+Harshil Tagadiya - [@Harshil Tagadiya](https://www.linkedin.com/in/harshil-tagadiya/) - harshiltagadiya@gmail.com
 
 Project Link: [https://github.com/harshil-270/ChatApp](https://github.com/harshil-270/ChatApp)
 
