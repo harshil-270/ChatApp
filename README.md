@@ -1,5 +1,8 @@
 # ChatApp
 
+- [ ] Add Emoji
+- [ ] Improve Login / Register UI
+- [ ] Send Images
 
 <!-- PROJECT LOGO -->
 <br />
