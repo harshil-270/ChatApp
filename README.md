@@ -1,5 +1,6 @@
 # ChatApp
 
+### TO-DO
 - [ ] Add Emoji
 - [ ] Improve Login / Register UI
 - [ ] Send Images
